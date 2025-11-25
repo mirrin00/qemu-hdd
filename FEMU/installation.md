@@ -73,7 +73,7 @@ mkdir -p ~/images
 ./qemu-img create -f qcow2 ~/images/u20s.qcow2 80G
 
 # устанавливаем на диск ОС
-./qemu-system-x86_64 -cdrom <your-iso-name.iso> -hda ~/images/u20s.qcow2 -boot d -net nic -net user -m 8192 -localtime -smp 8 -cpu host -enable-kvm
+./qemu-system-x86_64 -cdrom <your-iso-name.iso> -hda ~/images/u20s.qcow2 -boot d -net nic -net user -m 8192 -smp 8 -cpu host -enable-kvm
 ```
 
 3. **Настройка VM**
