@@ -1,0 +1,155 @@
+From 8106be978ef513174c6e0b6f044907790284986d Mon Sep 17 00:00:00 2001
+From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
+Date: Thu, 15 Jan 2026 18:12:16 +0300
+Subject: [PATCH 2/3] [ADD] Add basic request handling
+
+---
+ hw/scsi/test_disk.c         | 104 +++++++++++++++++++++++++++++++++++-
+ include/hw/scsi/test_disk.h |   3 +-
+ 2 files changed, 103 insertions(+), 4 deletions(-)
+
+diff --git a/hw/scsi/test_disk.c b/hw/scsi/test_disk.c
+index a8c774182b..42a4f220f1 100644
+--- a/hw/scsi/test_disk.c
++++ b/hw/scsi/test_disk.c
+@@ -2,15 +2,114 @@
+ #include "hw/scsi/test_disk.h"
+ #include "hw/scsi/scsi.h"
+ #include "qapi/error.h"
++#include "scsi/constants.h"
+ 
+ static int test_disk_parse_cdb(SCSIDevice *dev, SCSICommand *cmd, uint8_t *buf, size_t buf_len, void *hba_private) {
+-    printf("MySCSIDevice: Received CDB command 0x%02x\n", buf[0]);
++    printf("TEST_DISK: received CDB command 0x%02x\n", buf[0]);
+ 
+     return scsi_req_parse_cdb(dev, cmd, buf, buf_len);
+ }
+ 
++typedef struct TestDiskReq {
++    SCSIRequest req;
++    uint8_t buf[256];
++} TestDiskReq;
++
++static int32_t test_disk_send_command(SCSIRequest* req, uint8_t* buf) {
++    TestDiskReq *r = DO_UPCAST(TestDiskReq, req, req);
++    uint8_t command = buf[0];
++    uint8_t* outbuf = r->buf;
++
++    switch (command) {
++        case 0x00:
++            printf("\tTEST_DISK: TEST UNIT READY\n");
++
++            scsi_req_complete(req, GOOD);
++            break;
++
++        case 0x12:
++            printf("\tTEST_DISK: INQUIRY\n");
++            memset(outbuf, 0, 36);
++            outbuf[0] = 0;   // Direct-access block device
++            outbuf[1] = 0;   // non-removable
++            outbuf[2] = 5;   // SPC-3
++            outbuf[3] = 2;   // response data format
++            outbuf[4] = 31;  // additional length
++            memcpy(&outbuf[8],  "QEMU    ", 8);
++            memcpy(&outbuf[16], "TEST_DISK       ", 16);
++
++            scsi_req_data(req, 36);
++            break;
++
++        case 0x25:
++            printf("\tTEST_DISK: READ CAPACITY (10)\n");
++
++            memset(outbuf, 0, 8);
++
++            const uint32_t block_size = 512;
++            const uint32_t total_blocks = 2097152U;
++
++            uint32_t last_lba = total_blocks - 1;
++
++            outbuf[0] = (last_lba >> 24) & 0xff;
++            outbuf[1] = (last_lba >> 16) & 0xff;
++            outbuf[2] = (last_lba >> 8) & 0xff;
++            outbuf[3] = last_lba & 0xff;
++            
++            outbuf[4] = (block_size >> 24) & 0xff;
++            outbuf[5] = (block_size >> 16) & 0xff;
++            outbuf[6] = (block_size >> 8) & 0xff;
++            outbuf[7] = block_size & 0xff;
++            
++            scsi_req_data(req, 8);
++
++            break;
++
++        case 0x1A:
++            printf("\tTEST_DISK: MODE SENSE (6)\n");
++
++            memset(outbuf, 0, 4);
++            outbuf[0] = 3;     // length
++            outbuf[2] = 0x80;  // write protection
++
++            scsi_req_data(req, 4);
++            break;
++
++        default:
++            printf("\tTEST_DISK: rejecting command 0x%02x\n", command);
++
++            scsi_req_build_sense(req, SENSE_CODE(INVALID_OPCODE));
++            scsi_req_complete(req, CHECK_CONDITION);
++
++            break;
++    }
++
++    return 0;
++}
++
++static void test_disk_read_data(SCSIRequest *req) {
++    scsi_req_complete(req, GOOD);
++}
++
++static uint8_t* test_disk_get_buf(SCSIRequest *req)
++{
++    TestDiskReq *r = DO_UPCAST(TestDiskReq, req, req);
++    return r->buf;
++}
++
++static const SCSIReqOps test_disk_req_ops = {
++    .size = sizeof(TestDiskReq),
++    .send_command = test_disk_send_command,
++    .read_data = test_disk_read_data,
++    .get_buf = test_disk_get_buf
++};
++
++static SCSIRequest* test_disk_alloc_req(SCSIDevice *s, uint32_t tag, uint32_t lun, uint8_t *buf, void *hba_private) {
++    return scsi_req_alloc(&test_disk_req_ops, s, tag, lun, hba_private);
++}
++
+ static void test_disk_realize(SCSIDevice *dev, Error **errp) {
+-    printf("MySCSIDevice: Device realized (initialized)\n");
++    printf("TEST_DISK: realized\n");
+ }
+ 
+ static void test_disk_class_init(ObjectClass *klass, const void *data) {
+@@ -19,6 +118,7 @@ static void test_disk_class_init(ObjectClass *klass, const void *data) {
+ 
+     sc->realize = test_disk_realize;
+     sc->parse_cdb = test_disk_parse_cdb;
++    sc->alloc_req = test_disk_alloc_req;
+ 
+     set_bit(DEVICE_CATEGORY_STORAGE, dc->categories);
+     dc->desc = "Test SCSI Disk";
+diff --git a/include/hw/scsi/test_disk.h b/include/hw/scsi/test_disk.h
+index be2f7ccbd3..ac9e278372 100644
+--- a/include/hw/scsi/test_disk.h
++++ b/include/hw/scsi/test_disk.h
+@@ -11,5 +11,4 @@ struct TestDisk {
+     SCSIDevice parent_obj;
+ };
+ 
+-#endif //HW_SCSI_TEST_DISK_H
+-./
+\ No newline at end of file
++#endif //HW_SCSI_TEST_DISK_H
+\ No newline at end of file
+-- 
+2.52.0
+

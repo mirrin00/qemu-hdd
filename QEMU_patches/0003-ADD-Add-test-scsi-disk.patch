@@ -1,0 +1,121 @@
+From d711d59251cd4f674abe05bb6366572b594be422 Mon Sep 17 00:00:00 2001
+From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
+Date: Tue, 13 Jan 2026 19:53:51 +0300
+Subject: [PATCH 3/3] [ADD] Add test scsi disk
+
+---
+ .gitignore                  |  1 +
+ hw/scsi/Kconfig             |  5 +++++
+ hw/scsi/meson.build         |  1 +
+ hw/scsi/test_disk.c         | 38 +++++++++++++++++++++++++++++++++++++
+ include/hw/scsi/test_disk.h | 15 +++++++++++++++
+ 5 files changed, 60 insertions(+)
+ create mode 100644 hw/scsi/test_disk.c
+ create mode 100644 include/hw/scsi/test_disk.h
+
+diff --git a/.gitignore b/.gitignore
+index 61fa39967b..a0687c79d5 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -2,6 +2,7 @@
+ /build/
+ /.cache/
+ /.vscode/
++/.idea/
+ *.pyc
+ .sdk
+ .stgit-*
+diff --git a/hw/scsi/Kconfig b/hw/scsi/Kconfig
+index 5743ee9b4d..fcc81b304a 100644
+--- a/hw/scsi/Kconfig
++++ b/hw/scsi/Kconfig
+@@ -69,3 +69,8 @@ config VHOST_USER_SCSI
+     default y if VIRTIO_PCI
+     select VHOST_SCSI_COMMON
+     depends on VIRTIO && VHOST_USER && LINUX
++
++config TEST_DISK
++    bool
++    default y
++    depends on SCSI
+diff --git a/hw/scsi/meson.build b/hw/scsi/meson.build
+index b874fe1ecd..a45671e646 100644
+--- a/hw/scsi/meson.build
++++ b/hw/scsi/meson.build
+@@ -16,6 +16,7 @@ scsi_ss.add(when: 'CONFIG_NCR710_SCSI', if_true: files('ncr53c710.c', 'lasi_ncr7
+ scsi_ss.add(when: 'CONFIG_MEGASAS_SCSI_PCI', if_true: files('megasas.c'))
+ scsi_ss.add(when: 'CONFIG_MPTSAS_SCSI_PCI', if_true: files('mptsas.c', 'mptconfig.c', 'mptendian.c'))
+ scsi_ss.add(when: 'CONFIG_VMW_PVSCSI_SCSI_PCI', if_true: files('vmw_pvscsi.c'))
++scsi_ss.add(when: 'CONFIG_TEST_DISK', if_true: files('test_disk.c'))
+ 
+ virtio_scsi_ss.add(files('virtio-scsi-dataplane.c'))
+ virtio_scsi_ss.add(when: 'CONFIG_VHOST_SCSI', if_true: files('vhost-scsi.c'))
+diff --git a/hw/scsi/test_disk.c b/hw/scsi/test_disk.c
+new file mode 100644
+index 0000000000..a8c774182b
+--- /dev/null
++++ b/hw/scsi/test_disk.c
+@@ -0,0 +1,38 @@
++#include "qemu/osdep.h"
++#include "hw/scsi/test_disk.h"
++#include "hw/scsi/scsi.h"
++#include "qapi/error.h"
++
++static int test_disk_parse_cdb(SCSIDevice *dev, SCSICommand *cmd, uint8_t *buf, size_t buf_len, void *hba_private) {
++    printf("MySCSIDevice: Received CDB command 0x%02x\n", buf[0]);
++
++    return scsi_req_parse_cdb(dev, cmd, buf, buf_len);
++}
++
++static void test_disk_realize(SCSIDevice *dev, Error **errp) {
++    printf("MySCSIDevice: Device realized (initialized)\n");
++}
++
++static void test_disk_class_init(ObjectClass *klass, const void *data) {
++    DeviceClass *dc = DEVICE_CLASS(klass);
++    SCSIDeviceClass *sc = SCSI_DEVICE_CLASS(klass);
++
++    sc->realize = test_disk_realize;
++    sc->parse_cdb = test_disk_parse_cdb;
++
++    set_bit(DEVICE_CATEGORY_STORAGE, dc->categories);
++    dc->desc = "Test SCSI Disk";
++}
++
++static const TypeInfo test_disk_info = {
++    .name = TYPE_TEST_DISK,
++    .parent = TYPE_SCSI_DEVICE,
++    .instance_size = sizeof(TestDisk),
++    .class_init = test_disk_class_init,
++};
++
++static void test_disk_register_types(void) {
++    type_register_static(&test_disk_info);
++}
++
++type_init(test_disk_register_types)
+diff --git a/include/hw/scsi/test_disk.h b/include/hw/scsi/test_disk.h
+new file mode 100644
+index 0000000000..be2f7ccbd3
+--- /dev/null
++++ b/include/hw/scsi/test_disk.h
+@@ -0,0 +1,15 @@
++#ifndef HW_SCSI_TEST_DISK_H
++#define HW_SCSI_TEST_DISK_H
++
++#include "hw/scsi/scsi.h"
++#include "qom/object.h"
++
++#define TYPE_TEST_DISK "test_disk"
++OBJECT_DECLARE_SIMPLE_TYPE(TestDisk, TEST_DISK)
++
++struct TestDisk {
++    SCSIDevice parent_obj;
++};
++
++#endif //HW_SCSI_TEST_DISK_H
++./
+\ No newline at end of file
+-- 
+2.52.0
+

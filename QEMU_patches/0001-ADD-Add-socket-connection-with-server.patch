@@ -1,0 +1,177 @@
+From 9adc7ecb84a339ab70129e111b259a788fb6edb6 Mon Sep 17 00:00:00 2001
+From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
+Date: Tue, 20 Jan 2026 20:24:58 +0300
+Subject: [PATCH 1/3] [ADD] Add socket connection with server
+
+---
+ hw/scsi/test_disk.c         | 72 +++++++++++++++++++++++++------------
+ include/hw/scsi/test_disk.h |  2 ++
+ 2 files changed, 52 insertions(+), 22 deletions(-)
+
+diff --git a/hw/scsi/test_disk.c b/hw/scsi/test_disk.c
+index 42a4f220f1..01481301fa 100644
+--- a/hw/scsi/test_disk.c
++++ b/hw/scsi/test_disk.c
+@@ -1,10 +1,9 @@
+ #include "qemu/osdep.h"
+ #include "hw/scsi/test_disk.h"
+ #include "hw/scsi/scsi.h"
+-#include "qapi/error.h"
+ #include "scsi/constants.h"
+ 
+-static int test_disk_parse_cdb(SCSIDevice *dev, SCSICommand *cmd, uint8_t *buf, size_t buf_len, void *hba_private) {
++static int test_disk_parse_cdb(SCSIDevice* dev, SCSICommand* cmd, uint8_t* buf, size_t buf_len, void* hba_private) {
+     printf("TEST_DISK: received CDB command 0x%02x\n", buf[0]);
+ 
+     return scsi_req_parse_cdb(dev, cmd, buf, buf_len);
+@@ -16,10 +15,16 @@ typedef struct TestDiskReq {
+ } TestDiskReq;
+ 
+ static int32_t test_disk_send_command(SCSIRequest* req, uint8_t* buf) {
+-    TestDiskReq *r = DO_UPCAST(TestDiskReq, req, req);
++    TestDiskReq* r = DO_UPCAST(TestDiskReq, req, req);
++    TestDisk* disk = DO_UPCAST(TestDisk, parent_obj, req->dev);
++
+     uint8_t command = buf[0];
+     uint8_t* outbuf = r->buf;
+ 
++    if (disk->socket) {
++        qio_channel_write_all(QIO_CHANNEL(disk->socket), (char*)&command, 1, NULL);
++    }
++
+     switch (command) {
+         case 0x00:
+             printf("\tTEST_DISK: TEST UNIT READY\n");
+@@ -30,12 +35,12 @@ static int32_t test_disk_send_command(SCSIRequest* req, uint8_t* buf) {
+         case 0x12:
+             printf("\tTEST_DISK: INQUIRY\n");
+             memset(outbuf, 0, 36);
+-            outbuf[0] = 0;   // Direct-access block device
+-            outbuf[1] = 0;   // non-removable
+-            outbuf[2] = 5;   // SPC-3
+-            outbuf[3] = 2;   // response data format
+-            outbuf[4] = 31;  // additional length
+-            memcpy(&outbuf[8],  "QEMU    ", 8);
++            outbuf[0] = 0; // Direct-access block device
++            outbuf[1] = 0; // non-removable
++            outbuf[2] = 5; // SPC-3
++            outbuf[3] = 2; // response data format
++            outbuf[4] = 31; // additional length
++            memcpy(&outbuf[8], "QEMU    ", 8);
+             memcpy(&outbuf[16], "TEST_DISK       ", 16);
+ 
+             scsi_req_data(req, 36);
+@@ -55,12 +60,12 @@ static int32_t test_disk_send_command(SCSIRequest* req, uint8_t* buf) {
+             outbuf[1] = (last_lba >> 16) & 0xff;
+             outbuf[2] = (last_lba >> 8) & 0xff;
+             outbuf[3] = last_lba & 0xff;
+-            
++
+             outbuf[4] = (block_size >> 24) & 0xff;
+             outbuf[5] = (block_size >> 16) & 0xff;
+             outbuf[6] = (block_size >> 8) & 0xff;
+             outbuf[7] = block_size & 0xff;
+-            
++
+             scsi_req_data(req, 8);
+ 
+             break;
+@@ -69,8 +74,8 @@ static int32_t test_disk_send_command(SCSIRequest* req, uint8_t* buf) {
+             printf("\tTEST_DISK: MODE SENSE (6)\n");
+ 
+             memset(outbuf, 0, 4);
+-            outbuf[0] = 3;     // length
+-            outbuf[2] = 0x80;  // write protection
++            outbuf[0] = 3; // length
++            outbuf[2] = 0x80; // write protection
+ 
+             scsi_req_data(req, 4);
+             break;
+@@ -87,13 +92,12 @@ static int32_t test_disk_send_command(SCSIRequest* req, uint8_t* buf) {
+     return 0;
+ }
+ 
+-static void test_disk_read_data(SCSIRequest *req) {
++static void test_disk_read_data(SCSIRequest* req) {
+     scsi_req_complete(req, GOOD);
+ }
+ 
+-static uint8_t* test_disk_get_buf(SCSIRequest *req)
+-{
+-    TestDiskReq *r = DO_UPCAST(TestDiskReq, req, req);
++static uint8_t* test_disk_get_buf(SCSIRequest* req) {
++    TestDiskReq* r = DO_UPCAST(TestDiskReq, req, req);
+     return r->buf;
+ }
+ 
+@@ -104,17 +108,41 @@ static const SCSIReqOps test_disk_req_ops = {
+     .get_buf = test_disk_get_buf
+ };
+ 
+-static SCSIRequest* test_disk_alloc_req(SCSIDevice *s, uint32_t tag, uint32_t lun, uint8_t *buf, void *hba_private) {
++static SCSIRequest* test_disk_alloc_req(SCSIDevice* s, uint32_t tag, uint32_t lun, uint8_t* buf, void* hba_private) {
+     return scsi_req_alloc(&test_disk_req_ops, s, tag, lun, hba_private);
+ }
+ 
+-static void test_disk_realize(SCSIDevice *dev, Error **errp) {
++static void test_disk_realize(SCSIDevice* dev, Error** errp) {
++    TestDisk* disk = DO_UPCAST(TestDisk, parent_obj, dev);
++
++    SocketAddress addr = {
++        .type = SOCKET_ADDRESS_TYPE_INET,
++        .u.inet = {
++            .host = g_strdup("127.0.0.1"),
++            .port = g_strdup("31234")
++        }
++    };
++
++    disk->socket = qio_channel_socket_new();
++
++    if (qio_channel_socket_connect_sync(disk->socket, &addr, NULL) < 0) {
++        printf("SOCKET: failed to connect\n");
++
++        object_unref(OBJECT(disk->socket));
++        disk->socket = NULL;
++    } else {
++        printf("SOCKET: connected\n");
++    }
++
++    g_free(addr.u.inet.host);
++    g_free(addr.u.inet.port);
++
+     printf("TEST_DISK: realized\n");
+ }
+ 
+-static void test_disk_class_init(ObjectClass *klass, const void *data) {
+-    DeviceClass *dc = DEVICE_CLASS(klass);
+-    SCSIDeviceClass *sc = SCSI_DEVICE_CLASS(klass);
++static void test_disk_class_init(ObjectClass* klass, const void* data) {
++    DeviceClass* dc = DEVICE_CLASS(klass);
++    SCSIDeviceClass* sc = SCSI_DEVICE_CLASS(klass);
+ 
+     sc->realize = test_disk_realize;
+     sc->parse_cdb = test_disk_parse_cdb;
+diff --git a/include/hw/scsi/test_disk.h b/include/hw/scsi/test_disk.h
+index ac9e278372..c6a07db5dd 100644
+--- a/include/hw/scsi/test_disk.h
++++ b/include/hw/scsi/test_disk.h
+@@ -2,6 +2,7 @@
+ #define HW_SCSI_TEST_DISK_H
+ 
+ #include "hw/scsi/scsi.h"
++#include "io/channel-socket.h"
+ #include "qom/object.h"
+ 
+ #define TYPE_TEST_DISK "test_disk"
+@@ -9,6 +10,7 @@ OBJECT_DECLARE_SIMPLE_TYPE(TestDisk, TEST_DISK)
+ 
+ struct TestDisk {
+     SCSIDevice parent_obj;
++    QIOChannelSocket* socket;
+ };
+ 
+ #endif //HW_SCSI_TEST_DISK_H
+\ No newline at end of file
+-- 
+2.52.0
+
