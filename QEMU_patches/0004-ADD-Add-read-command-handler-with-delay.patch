@@ -1,7 +1,7 @@
 From bdcc99c3fef44623ab515b5fc3db93758ff61c22 Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Wed, 21 Jan 2026 20:00:40 +0300
-Subject: [PATCH 1/4] [ADD] Add read command handler with delay
+Subject: [PATCH 4/4] [ADD] Add read command handler with delay
 
 ---
  hw/scsi/test_disk.c | 69 ++++++++++++++++++++++++++++++++++++++++++---
