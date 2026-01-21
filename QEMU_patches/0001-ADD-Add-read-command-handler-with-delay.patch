@@ -1,0 +1,134 @@
+From bdcc99c3fef44623ab515b5fc3db93758ff61c22 Mon Sep 17 00:00:00 2001
+From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
+Date: Wed, 21 Jan 2026 20:00:40 +0300
+Subject: [PATCH 1/4] [ADD] Add read command handler with delay
+
+---
+ hw/scsi/test_disk.c | 69 ++++++++++++++++++++++++++++++++++++++++++---
+ 1 file changed, 65 insertions(+), 4 deletions(-)
+
+diff --git a/hw/scsi/test_disk.c b/hw/scsi/test_disk.c
+index 01481301fa..a4bf98bf5f 100644
+--- a/hw/scsi/test_disk.c
++++ b/hw/scsi/test_disk.c
+@@ -3,6 +3,9 @@
+ #include "hw/scsi/scsi.h"
+ #include "scsi/constants.h"
+ 
++// block size * max blocks
++#define MAX_READ_XFER_SIZE (512 * 2048) // 1MB
++
+ static int test_disk_parse_cdb(SCSIDevice* dev, SCSICommand* cmd, uint8_t* buf, size_t buf_len, void* hba_private) {
+     printf("TEST_DISK: received CDB command 0x%02x\n", buf[0]);
+ 
+@@ -11,9 +14,25 @@ static int test_disk_parse_cdb(SCSIDevice* dev, SCSICommand* cmd, uint8_t* buf,
+ 
+ typedef struct TestDiskReq {
+     SCSIRequest req;
+-    uint8_t buf[256];
++    QEMUTimer* timer;
++    int len;
++    uint8_t buf[MAX_READ_XFER_SIZE];
+ } TestDiskReq;
+ 
++static void test_disk_read_callback(void* opaque) {
++    printf("CALLBACK: from READ command\n");
++
++    TestDiskReq* r = opaque;
++
++    uint8_t* outbuf = r->buf;
++    memset(outbuf, 0, r->len);
++
++    scsi_req_data(&r->req, r->len);
++
++    timer_free(r->timer);
++    r->timer = NULL;
++}
++
+ static int32_t test_disk_send_command(SCSIRequest* req, uint8_t* buf) {
+     TestDiskReq* r = DO_UPCAST(TestDiskReq, req, req);
+     TestDisk* disk = DO_UPCAST(TestDisk, parent_obj, req->dev);
+@@ -52,7 +71,7 @@ static int32_t test_disk_send_command(SCSIRequest* req, uint8_t* buf) {
+             memset(outbuf, 0, 8);
+ 
+             const uint32_t block_size = 512;
+-            const uint32_t total_blocks = 2097152U;
++            const uint32_t total_blocks = 2048U;
+ 
+             uint32_t last_lba = total_blocks - 1;
+ 
+@@ -67,7 +86,6 @@ static int32_t test_disk_send_command(SCSIRequest* req, uint8_t* buf) {
+             outbuf[7] = block_size & 0xff;
+ 
+             scsi_req_data(req, 8);
+-
+             break;
+ 
+         case 0x1A:
+@@ -80,12 +98,52 @@ static int32_t test_disk_send_command(SCSIRequest* req, uint8_t* buf) {
+             scsi_req_data(req, 4);
+             break;
+ 
++        case 0x5A:
++            printf("\tTEST_DISK: MODE SENSE (10)\n");
++            memset(outbuf, 0, 8);
++
++            outbuf[0] = 0;
++            outbuf[1] = 6;
++
++            outbuf[3] = 0x80;
++
++            scsi_req_data(req, 8);
++            break;
++
++        case 0x08:
++        case 0x28:
++            int read_type = command == 0x08 ? 6 : 10;
++            printf("\tTEST_DISK: READ (%d)\n", read_type);
++
++            int target_len = (int)req->cmd.xfer;
++            printf("\tTARGET_LEN: %d\n", target_len);
++
++            if (target_len == 0) {
++                scsi_req_complete(req, GOOD);
++                break;
++            }
++
++            if (target_len > sizeof(r->buf)) {
++                printf("\tTEST_DISK: error - request too big\n");
++
++                scsi_req_build_sense(req, SENSE_CODE(LBA_OUT_OF_RANGE));
++                scsi_req_complete(req, CHECK_CONDITION);
++                break;
++            }
++
++            r->len = target_len;
++            r->timer = timer_new_ms(QEMU_CLOCK_REALTIME, test_disk_read_callback, r);
++
++            uint8_t delay_ms = 0;
++            timer_mod(r->timer, qemu_clock_get_ms(QEMU_CLOCK_REALTIME) + delay_ms);
++
++            return 0;
++
+         default:
+             printf("\tTEST_DISK: rejecting command 0x%02x\n", command);
+ 
+             scsi_req_build_sense(req, SENSE_CODE(INVALID_OPCODE));
+             scsi_req_complete(req, CHECK_CONDITION);
+-
+             break;
+     }
+ 
+@@ -113,6 +171,9 @@ static SCSIRequest* test_disk_alloc_req(SCSIDevice* s, uint32_t tag, uint32_t lu
+ }
+ 
+ static void test_disk_realize(SCSIDevice* dev, Error** errp) {
++    dev->type = TYPE_DISK;
++    dev->blocksize = 512;
++
+     TestDisk* disk = DO_UPCAST(TestDisk, parent_obj, dev);
+ 
+     SocketAddress addr = {
+-- 
+2.52.0
+

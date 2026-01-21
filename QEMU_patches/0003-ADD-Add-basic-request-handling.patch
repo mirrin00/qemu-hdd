@@ -1,7 +1,7 @@
-From 8106be978ef513174c6e0b6f044907790284986d Mon Sep 17 00:00:00 2001
+From 6e84f169872c8bd39c363569a22094ad264de2a3 Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Thu, 15 Jan 2026 18:12:16 +0300
-Subject: [PATCH 2/3] [ADD] Add basic request handling
+Subject: [PATCH 3/4] [ADD] Add basic request handling
 
 ---
  hw/scsi/test_disk.c         | 104 +++++++++++++++++++++++++++++++++++-

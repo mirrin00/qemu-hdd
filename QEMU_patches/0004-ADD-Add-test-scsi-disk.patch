@@ -1,7 +1,7 @@
-From d711d59251cd4f674abe05bb6366572b594be422 Mon Sep 17 00:00:00 2001
+From 262ff0d0d6db6e6404265a494215fd3785bb999e Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Tue, 13 Jan 2026 19:53:51 +0300
-Subject: [PATCH 3/3] [ADD] Add test scsi disk
+Subject: [PATCH 4/4] [ADD] Add test scsi disk
 
 ---
  .gitignore                  |  1 +
