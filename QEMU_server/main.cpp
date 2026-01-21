@@ -19,25 +19,30 @@ int main() {
     bind(fd, reinterpret_cast<sockaddr*>(&addr), sizeof(addr));
 
     listen(fd, 1);
-    int client_fd = accept(fd, nullptr, nullptr);
 
-    char buffer[1024] = {};
     while (true) {
-        ssize_t bytes = recv(client_fd, buffer, sizeof(buffer), 0);
-        if (bytes < 0) {
-            break;
-        }
+        int client_fd = accept(fd, nullptr, nullptr);
+        std::cout << "---- New connection ----" << std::endl;
 
-        std::string str(static_cast<size_t>(bytes), '\0');
-        std::memcpy(str.data(), buffer, bytes);
+        char buffer[1024] = {};
+        while (true) {
+            ssize_t bytes = recv(client_fd, buffer, sizeof(buffer), 0);
+            if (bytes < 0) {
+                break;
+            }
 
-        if (str.empty()) {
-            break;
-        }
+            std::string str(static_cast<size_t>(bytes), '\0');
+            std::memcpy(str.data(), buffer, bytes);
 
-        for (const char ch: str) {
-            std::cout << "0x" << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(ch) << ' ';
+            if (str.empty()) {
+                break;
+            }
+
+            for (const char ch: str) {
+                std::cout << "0x" << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(ch) << ' ';
+            }
+            std::cout << std::endl;
         }
-        std::cout << std::endl;
+        std::cout << "---- Connection closed ----" << std::endl;
     }
 }
