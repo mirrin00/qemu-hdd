@@ -1,0 +1,132 @@
+From c85a868d1b83d6ff5c7b495741d9e593adcf943f Mon Sep 17 00:00:00 2001
+From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
+Date: Thu, 22 Jan 2026 18:37:00 +0300
+Subject: [PATCH] [ADD] Add ability to set constants
+
+---
+ hw/scsi/test_disk.c         | 47 +++++++++++++++++++++++++++++--------
+ include/hw/scsi/test_disk.h |  5 ++++
+ 2 files changed, 42 insertions(+), 10 deletions(-)
+
+diff --git a/hw/scsi/test_disk.c b/hw/scsi/test_disk.c
+index a4bf98bf5f..0669c92192 100644
+--- a/hw/scsi/test_disk.c
++++ b/hw/scsi/test_disk.c
+@@ -16,9 +16,16 @@ typedef struct TestDiskReq {
+     SCSIRequest req;
+     QEMUTimer* timer;
+     int len;
+-    uint8_t buf[MAX_READ_XFER_SIZE];
++
++    uint8_t* buf;
+ } TestDiskReq;
+ 
++static Property test_disk_properties[] = {
++    DEFINE_PROP_SIZE("size", TestDisk, size, 1 * 1024 * 1024 * 1024),
++    DEFINE_PROP_SIZE("bs", TestDisk, block_size, 512),
++    DEFINE_PROP_SIZE("max_xfer_size", TestDisk, max_xfer_size, 1 * 1024 * 1024),
++};
++
+ static void test_disk_read_callback(void* opaque) {
+     printf("CALLBACK: from READ command\n");
+ 
+@@ -70,8 +77,8 @@ static int32_t test_disk_send_command(SCSIRequest* req, uint8_t* buf) {
+ 
+             memset(outbuf, 0, 8);
+ 
+-            const uint32_t block_size = 512;
+-            const uint32_t total_blocks = 2048U;
++            const uint32_t block_size = disk->block_size;
++            const uint32_t total_blocks = disk->size / disk->block_size;
+ 
+             uint32_t last_lba = total_blocks - 1;
+ 
+@@ -123,10 +130,10 @@ static int32_t test_disk_send_command(SCSIRequest* req, uint8_t* buf) {
+                 break;
+             }
+ 
+-            if (target_len > sizeof(r->buf)) {
++            if (target_len > disk->max_xfer_size) {
+                 printf("\tTEST_DISK: error - request too big\n");
+ 
+-                scsi_req_build_sense(req, SENSE_CODE(LBA_OUT_OF_RANGE));
++                scsi_req_build_sense(req, SENSE_CODE(INVALID_FIELD));
+                 scsi_req_complete(req, CHECK_CONDITION);
+                 break;
+             }
+@@ -159,23 +166,41 @@ static uint8_t* test_disk_get_buf(SCSIRequest* req) {
+     return r->buf;
+ }
+ 
++static void test_disk_free_req(SCSIRequest* req) {
++    TestDiskReq* r = DO_UPCAST(TestDiskReq, req, req);
++
++    if (r->buf) {
++        g_free(r->buf);
++        r->buf = NULL;
++    }
++}
++
+ static const SCSIReqOps test_disk_req_ops = {
+     .size = sizeof(TestDiskReq),
+     .send_command = test_disk_send_command,
+     .read_data = test_disk_read_data,
+-    .get_buf = test_disk_get_buf
++    .get_buf = test_disk_get_buf,
++    .free_req = test_disk_free_req
+ };
+ 
+ static SCSIRequest* test_disk_alloc_req(SCSIDevice* s, uint32_t tag, uint32_t lun, uint8_t* buf, void* hba_private) {
+-    return scsi_req_alloc(&test_disk_req_ops, s, tag, lun, hba_private);
++    TestDisk* disk = DO_UPCAST(TestDisk, parent_obj, s);
++    uint64_t max_xfer_size = disk->max_xfer_size;
++
++    SCSIRequest* req = scsi_req_alloc(&test_disk_req_ops, s, tag, lun, hba_private);
++    TestDiskReq* r = DO_UPCAST(TestDiskReq, req, req);
++
++    r->buf = g_malloc0(max_xfer_size);
++
++    return req;
+ }
+ 
+ static void test_disk_realize(SCSIDevice* dev, Error** errp) {
+-    dev->type = TYPE_DISK;
+-    dev->blocksize = 512;
+-
+     TestDisk* disk = DO_UPCAST(TestDisk, parent_obj, dev);
+ 
++    dev->type = TYPE_DISK;
++    dev->blocksize = (int)disk->block_size;
++
+     SocketAddress addr = {
+         .type = SOCKET_ADDRESS_TYPE_INET,
+         .u.inet = {
+@@ -211,6 +236,8 @@ static void test_disk_class_init(ObjectClass* klass, const void* data) {
+ 
+     set_bit(DEVICE_CATEGORY_STORAGE, dc->categories);
+     dc->desc = "Test SCSI Disk";
++
++    device_class_set_props(dc, test_disk_properties);
+ }
+ 
+ static const TypeInfo test_disk_info = {
+diff --git a/include/hw/scsi/test_disk.h b/include/hw/scsi/test_disk.h
+index c6a07db5dd..a86908d965 100644
+--- a/include/hw/scsi/test_disk.h
++++ b/include/hw/scsi/test_disk.h
+@@ -11,6 +11,11 @@ OBJECT_DECLARE_SIMPLE_TYPE(TestDisk, TEST_DISK)
+ struct TestDisk {
+     SCSIDevice parent_obj;
+     QIOChannelSocket* socket;
++
++    uint64_t size;
++    uint64_t block_size;
++
++    uint64_t max_xfer_size;
+ };
+ 
+ #endif //HW_SCSI_TEST_DISK_H
+\ No newline at end of file
+-- 
+2.52.0
+
