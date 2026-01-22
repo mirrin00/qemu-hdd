@@ -1,5 +1,6 @@
 #include <arpa/inet.h>
 #include <cstring>
+#include <format>
 #include <iomanip>
 #include <iostream>
 #include <netinet/in.h>
@@ -20,9 +21,18 @@ int main() {
 
     listen(fd, 1);
 
+    uint32_t latency_ms = 5;
+
+    uint8_t latency_ms_be[4];
+    latency_ms_be[0] = latency_ms >> 24;
+    latency_ms_be[1] = latency_ms >> 16;
+    latency_ms_be[2] = latency_ms >>  8;
+    latency_ms_be[3] = latency_ms;
+
     while (true) {
         int client_fd = accept(fd, nullptr, nullptr);
-        std::cout << "---- New connection ----" << std::endl;
+        std::cout << std::format("---- New connection. Latency: {} ----", latency_ms) << std::endl;
+        send(client_fd, latency_ms_be, sizeof(latency_ms_be), 0);
 
         char buffer[1024] = {};
         while (true) {
@@ -38,10 +48,10 @@ int main() {
                 break;
             }
 
-            for (const char ch: str) {
-                std::cout << "0x" << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(ch) << ' ';
-            }
-            std::cout << std::endl;
+            // for (const char ch: str) {
+            //     std::cout << "0x" << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(ch) << ' ';
+            // }
+            // std::cout << std::endl;
         }
         std::cout << "---- Connection closed ----" << std::endl;
     }
