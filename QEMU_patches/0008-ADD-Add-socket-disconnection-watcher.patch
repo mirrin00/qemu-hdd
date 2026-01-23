@@ -1,0 +1,113 @@
+From bdfbeb9c78623a0d6ebeafeb2a887e1fd8961aec Mon Sep 17 00:00:00 2001
+From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
+Date: Fri, 23 Jan 2026 16:12:43 +0300
+Subject: [PATCH] [ADD] Add socket disconnection watcher
+
+---
+ hw/scsi/test_disk.c | 47 +++++++++++++++++++++++++++++++++++++++++++--
+ hw/scsi/test_disk.h |  2 ++
+ 2 files changed, 47 insertions(+), 2 deletions(-)
+
+diff --git a/hw/scsi/test_disk.c b/hw/scsi/test_disk.c
+index a7fa2a4a77..7e5c1d5de4 100644
+--- a/hw/scsi/test_disk.c
++++ b/hw/scsi/test_disk.c
+@@ -44,6 +44,7 @@ static const SCSIReqOps test_disk_req_ops = {
+ // Helper functions
+ static void test_disk_socket_start_connection(void* opaque);
+ static void test_disk_socket_connected(QIOTask* task, gpointer opaque);
++static gboolean test_disk_socket_watch(QIOChannel* ioc, GIOCondition condition, gpointer opaque);
+ static void test_disk_read_callback(void* opaque);
+ 
+ 
+@@ -79,6 +80,14 @@ static int32_t test_disk_send_command(SCSIRequest* scsi_req, uint8_t* request_bu
+         return 0;
+     }
+ 
++    if (disk->unit_attention) {
++        disk->unit_attention = false;
++
++        scsi_req_build_sense(scsi_req, SENSE_CODE(CAPACITY_CHANGED));
++        scsi_req_complete(scsi_req, CHECK_CONDITION);
++        return 0;
++    }
++
+     switch (command) {
+         case 0x00: // TEST UNIT READY
+             scsi_req_complete(scsi_req, GOOD);
+@@ -222,12 +231,45 @@ static void test_disk_socket_connected(QIOTask* task, gpointer opaque) {
+         timer_mod(disk->socket_connect_timer, qemu_clock_get_ms(QEMU_CLOCK_REALTIME) + 5000);
+         return;
+     }
+-
+     disk->latency_ms = be32_to_cpu(latency_be);
+ 
++    qio_channel_add_watch(QIO_CHANNEL(disk->socket), G_IO_IN | G_IO_HUP | G_IO_ERR, test_disk_socket_watch, disk, NULL);
++
++    disk->unit_attention = true;
++    scsi_device_report_change(&disk->parent_scsi_dev, SENSE_CODE(CAPACITY_CHANGED));
++
+     printf("[SOCKET]: connected successfully. latency: %dms\n", disk->latency_ms);
+ }
+ 
++static gboolean test_disk_socket_watch(QIOChannel* ioc, GIOCondition condition, gpointer opaque) {
++    TestDisk* disk = opaque;
++
++    bool closed = false;
++    if (condition & G_IO_IN) {
++        char buf[1];
++        if (qio_channel_read_all_eof(ioc, buf, 1, NULL) <= 0) {
++            closed = true;
++        }
++    } else if (condition & (G_IO_HUP | G_IO_ERR)) {
++        closed = true;
++    }
++
++    if (closed) {
++        printf("[SOCKET]: disconnected\n");
++
++        if (disk->socket) {
++            object_unref(OBJECT(disk->socket));
++            disk->socket = NULL;
++
++            timer_mod(disk->socket_connect_timer, qemu_clock_get_ms(QEMU_CLOCK_REALTIME) + 1000);
++        }
++
++        return FALSE;
++    }
++
++    return TRUE;
++}
++
+ static void test_disk_read_callback(void* opaque) {
+     TestDiskReq* req = opaque;
+ 
+@@ -272,9 +314,10 @@ static void test_disk_realize(SCSIDevice* scsi_dev, Error** errp) {
+     scsi_dev->blocksize = (int)disk->block_size;
+ 
+     disk->latency_ms = 0;
++    disk->unit_attention = false;
+ 
+     disk->socket_connect_timer = timer_new_ms(QEMU_CLOCK_REALTIME, test_disk_socket_start_connection, disk);
+-    test_disk_socket_start_connection(disk);
++    timer_mod(disk->socket_connect_timer, qemu_clock_get_ms(QEMU_CLOCK_REALTIME) + 1000);
+ 
+     printf("[DISK]: realized\n");
+ }
+diff --git a/hw/scsi/test_disk.h b/hw/scsi/test_disk.h
+index 91aecea9b1..1a9c70eacf 100644
+--- a/hw/scsi/test_disk.h
++++ b/hw/scsi/test_disk.h
+@@ -20,6 +20,8 @@ struct TestDisk {
+ 
+     QEMUTimer* socket_connect_timer;
+     bool connecting;
++
++    bool unit_attention;
+ };
+ 
+ #endif //HW_SCSI_TEST_DISK_H
+\ No newline at end of file
+-- 
+2.52.0
+
