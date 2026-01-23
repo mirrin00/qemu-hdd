@@ -31,7 +31,7 @@ int main() {
 
     while (true) {
         int client_fd = accept(fd, nullptr, nullptr);
-        std::cout << std::format("---- New connection. Latency: {} ----", latency_ms) << std::endl;
+        std::cout << std::format("---- New connection. Latency: {}ms ----", latency_ms) << std::endl;
         send(client_fd, latency_ms_be, sizeof(latency_ms_be), 0);
 
         char buffer[1024] = {};
