@@ -17,6 +17,10 @@ int main() {
     inet_aton("127.0.0.1", &addr.sin_addr);
 
     int fd = socket(AF_INET, SOCK_STREAM, 0);
+
+    int opt = 1;
+    setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
+
     bind(fd, reinterpret_cast<sockaddr*>(&addr), sizeof(addr));
 
     listen(fd, 1);
