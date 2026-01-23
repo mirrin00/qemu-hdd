@@ -1,0 +1,96 @@
+From 945c5fb1ac2e7052968cab7f613f040dc6d409fc Mon Sep 17 00:00:00 2001
+From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
+Date: Fri, 23 Jan 2026 12:55:40 +0300
+Subject: [PATCH] [REF] Minor refactoring
+
+---
+ hw/scsi/test_disk.c | 23 +++++------------------
+ hw/scsi/test_disk.h |  2 --
+ 2 files changed, 5 insertions(+), 20 deletions(-)
+
+diff --git a/hw/scsi/test_disk.c b/hw/scsi/test_disk.c
+index f0262586a9..a7fa2a4a77 100644
+--- a/hw/scsi/test_disk.c
++++ b/hw/scsi/test_disk.c
+@@ -4,12 +4,13 @@
+ #include "qapi/error.h"
+ #include "scsi/constants.h"
+ 
++#define MAX_XFER_SIZE (1 * 1024 * 1024)
++
+ 
+ // Device properties
+ static const Property test_disk_properties[] = {
+     DEFINE_PROP_SIZE("size", TestDisk, size, 1 * 1024 * 1024 * 1024),
+     DEFINE_PROP_SIZE("bs", TestDisk, block_size, 512),
+-    DEFINE_PROP_SIZE("max_xfer_size", TestDisk, max_xfer_size, 1 * 1024 * 1024),
+ };
+ 
+ 
+@@ -133,7 +134,7 @@ static int32_t test_disk_send_command(SCSIRequest* scsi_req, uint8_t* request_bu
+                 break;
+             }
+ 
+-            if (req_target_len > disk->max_xfer_size) {
++            if (req_target_len > MAX_XFER_SIZE) {
+                 printf("[READ]: target xfer size from request is greater than disk max xfer size\n");
+ 
+                 scsi_req_build_sense(scsi_req, SENSE_CODE(INVALID_FIELD));
+@@ -144,17 +145,6 @@ static int32_t test_disk_send_command(SCSIRequest* scsi_req, uint8_t* request_bu
+             disk_req->response_buf_len = req_target_len;
+             disk_req->timer = timer_new_ms(QEMU_CLOCK_REALTIME, test_disk_read_callback, disk_req);
+ 
+-            // if (qio_channel_write_all(QIO_CHANNEL(disk->socket), (char*)&command, 1, NULL) == 0) {
+-            //     delay_ms = 5;
+-            // } else {
+-            //     printf("[SOCKET]: connection is broken\n");
+-            //
+-            //     object_unref(OBJECT(disk->socket));
+-            //     disk->socket = NULL;
+-            //
+-            //     test_disk_socket_start_connection(disk);
+-            // }
+-
+             timer_mod(disk_req->timer, qemu_clock_get_ms(QEMU_CLOCK_REALTIME) + disk->latency_ms);
+ 
+             break;
+@@ -235,7 +225,7 @@ static void test_disk_socket_connected(QIOTask* task, gpointer opaque) {
+ 
+     disk->latency_ms = be32_to_cpu(latency_be);
+ 
+-    printf("[SOCKET]: connected successfully\n");
++    printf("[SOCKET]: connected successfully. latency: %dms\n", disk->latency_ms);
+ }
+ 
+ static void test_disk_read_callback(void* opaque) {
+@@ -254,13 +244,10 @@ static void test_disk_read_callback(void* opaque) {
+ 
+ 
+ static SCSIRequest* test_disk_alloc_req(SCSIDevice* scsi_dev, uint32_t tag, uint32_t lun, uint8_t* request_buf, void* hba_private) {
+-    TestDisk* disk = DO_UPCAST(TestDisk, parent_scsi_dev, scsi_dev);
+-    uint64_t max_xfer_size = disk->max_xfer_size;
+-
+     SCSIRequest* scsi_req = scsi_req_alloc(&test_disk_req_ops, scsi_dev, tag, lun, hba_private);
+     TestDiskReq* disk_req = DO_UPCAST(TestDiskReq, parent_scsi_req, scsi_req);
+ 
+-    disk_req->response_buf = g_malloc0(max_xfer_size);
++    disk_req->response_buf = g_malloc0(MAX_XFER_SIZE);
+ 
+     return scsi_req;
+ }
+diff --git a/hw/scsi/test_disk.h b/hw/scsi/test_disk.h
+index 568f975961..91aecea9b1 100644
+--- a/hw/scsi/test_disk.h
++++ b/hw/scsi/test_disk.h
+@@ -16,8 +16,6 @@ struct TestDisk {
+     uint64_t size;
+     uint64_t block_size;
+ 
+-    uint64_t max_xfer_size;
+-
+     uint32_t latency_ms;
+ 
+     QEMUTimer* socket_connect_timer;
+-- 
+2.52.0
+
