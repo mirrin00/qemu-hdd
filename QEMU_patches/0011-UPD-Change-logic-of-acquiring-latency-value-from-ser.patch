@@ -1,0 +1,157 @@
+From d2dd21faef3353967fd15be171b25f7086872c72 Mon Sep 17 00:00:00 2001
+From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
+Date: Sun, 25 Jan 2026 19:36:53 +0300
+Subject: [PATCH] [UPD] Change logic of acquiring latency value from server
+
+---
+ hw/scsi/test_disk.c | 79 +++++++++++++++++++++++++++++++++++----------
+ hw/scsi/test_disk.h |  4 +--
+ 2 files changed, 64 insertions(+), 19 deletions(-)
+
+diff --git a/hw/scsi/test_disk.c b/hw/scsi/test_disk.c
+index 7e5c1d5de4..4124631d23 100644
+--- a/hw/scsi/test_disk.c
++++ b/hw/scsi/test_disk.c
+@@ -2,7 +2,10 @@
+ #include "hw/scsi/scsi.h"
+ #include "test_disk.h"
+ #include "qapi/error.h"
++#include "qemu/bswap.h"
+ #include "scsi/constants.h"
++#include "contrib/test_disk-server/structs.h"
++#include "system/cpu-timers.h"
+ 
+ #define MAX_XFER_SIZE (1 * 1024 * 1024)
+ 
+@@ -83,7 +86,7 @@ static int32_t test_disk_send_command(SCSIRequest* scsi_req, uint8_t* request_bu
+     if (disk->unit_attention) {
+         disk->unit_attention = false;
+ 
+-        scsi_req_build_sense(scsi_req, SENSE_CODE(CAPACITY_CHANGED));
++        scsi_req_build_sense(scsi_req, SENSE_CODE(MEDIUM_CHANGED));
+         scsi_req_complete(scsi_req, CHECK_CONDITION);
+         return 0;
+     }
+@@ -151,10 +154,63 @@ static int32_t test_disk_send_command(SCSIRequest* scsi_req, uint8_t* request_bu
+                 break;
+             }
+ 
++            uint32_t latency_ms = 0;
++
++            // ---
++            cpu_disable_ticks();
++
++            qio_channel_set_blocking(QIO_CHANNEL(disk->socket), true, NULL);
++
++            if (disk->socket_watcher_tag > 0) {
++                g_source_remove(disk->socket_watcher_tag);
++                disk->socket_watcher_tag = 0;
++            }
++
++            ServerRequest server_req = {
++                .command = command
++            };
++
++            bool socket_alive = true;
++            if (qio_channel_write_all(QIO_CHANNEL(disk->socket), &server_req, sizeof(server_req), NULL) == -1) {
++                socket_alive = false;
++            }
++
++            if (socket_alive) {
++                ServerResponse server_res;
++
++                if (qio_channel_read_all(QIO_CHANNEL(disk->socket), &server_res, sizeof(server_res), NULL) == -1) {
++                    socket_alive = false;
++                }
++
++                if (socket_alive) {
++                    latency_ms = server_res.latency;
++                }
++            }
++
++            disk->socket_watcher_tag = qio_channel_add_watch(QIO_CHANNEL(disk->socket), G_IO_IN | G_IO_HUP | G_IO_ERR, test_disk_socket_watch, disk, NULL);
++
++            qio_channel_set_blocking(QIO_CHANNEL(disk->socket), false, NULL);
++
++            cpu_enable_ticks();
++            // ---
++
++            if (!socket_alive) {
++                object_unref(OBJECT(disk->socket));
++                disk->socket = NULL;
++
++                g_source_remove(disk->socket_watcher_tag);
++                disk->socket_watcher_tag = 0;
++
++                timer_mod(disk->socket_connect_timer, qemu_clock_get_ms(QEMU_CLOCK_REALTIME) + 5000);
++
++                scsi_req_build_sense(scsi_req, SENSE_CODE(NOT_READY));
++                scsi_req_complete(scsi_req, CHECK_CONDITION);
++                return 0;
++            }
++
+             disk_req->response_buf_len = req_target_len;
+             disk_req->timer = timer_new_ms(QEMU_CLOCK_REALTIME, test_disk_read_callback, disk_req);
+-
+-            timer_mod(disk_req->timer, qemu_clock_get_ms(QEMU_CLOCK_REALTIME) + disk->latency_ms);
++            timer_mod(disk_req->timer, qemu_clock_get_ms(QEMU_CLOCK_REALTIME) + latency_ms);
+ 
+             break;
+ 
+@@ -223,22 +279,12 @@ static void test_disk_socket_connected(QIOTask* task, gpointer opaque) {
+         return;
+     }
+ 
+-    uint32_t latency_be = 0;
+-    if (qio_channel_read_all(QIO_CHANNEL(disk->socket), (char*) &latency_be, sizeof(latency_be), NULL) < 0) {
+-        object_unref(OBJECT(disk->socket));
+-        disk->socket = NULL;
+-
+-        timer_mod(disk->socket_connect_timer, qemu_clock_get_ms(QEMU_CLOCK_REALTIME) + 5000);
+-        return;
+-    }
+-    disk->latency_ms = be32_to_cpu(latency_be);
+-
+-    qio_channel_add_watch(QIO_CHANNEL(disk->socket), G_IO_IN | G_IO_HUP | G_IO_ERR, test_disk_socket_watch, disk, NULL);
++    disk->socket_watcher_tag = qio_channel_add_watch(QIO_CHANNEL(disk->socket), G_IO_IN | G_IO_HUP | G_IO_ERR, test_disk_socket_watch, disk, NULL);
+ 
+     disk->unit_attention = true;
+-    scsi_device_report_change(&disk->parent_scsi_dev, SENSE_CODE(CAPACITY_CHANGED));
++    scsi_device_report_change(&disk->parent_scsi_dev, SENSE_CODE(MEDIUM_CHANGED));
+ 
+-    printf("[SOCKET]: connected successfully. latency: %dms\n", disk->latency_ms);
++    printf("[SOCKET]: connected successfully\n");
+ }
+ 
+ static gboolean test_disk_socket_watch(QIOChannel* ioc, GIOCondition condition, gpointer opaque) {
+@@ -313,7 +359,6 @@ static void test_disk_realize(SCSIDevice* scsi_dev, Error** errp) {
+     scsi_dev->type = TYPE_DISK;
+     scsi_dev->blocksize = (int)disk->block_size;
+ 
+-    disk->latency_ms = 0;
+     disk->unit_attention = false;
+ 
+     disk->socket_connect_timer = timer_new_ms(QEMU_CLOCK_REALTIME, test_disk_socket_start_connection, disk);
+diff --git a/hw/scsi/test_disk.h b/hw/scsi/test_disk.h
+index 1a9c70eacf..acc1285d62 100644
+--- a/hw/scsi/test_disk.h
++++ b/hw/scsi/test_disk.h
+@@ -16,12 +16,12 @@ struct TestDisk {
+     uint64_t size;
+     uint64_t block_size;
+ 
+-    uint32_t latency_ms;
+-
+     QEMUTimer* socket_connect_timer;
+     bool connecting;
+ 
+     bool unit_attention;
++
++    guint socket_watcher_tag;
+ };
+ 
+ #endif //HW_SCSI_TEST_DISK_H
+\ No newline at end of file
+-- 
+2.52.0
+
