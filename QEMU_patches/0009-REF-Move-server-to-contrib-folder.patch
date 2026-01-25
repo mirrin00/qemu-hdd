@@ -1,0 +1,127 @@
+From 132a8e5b13e317a21c3152eb9ab731ce48276a59 Mon Sep 17 00:00:00 2001
+From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
+Date: Sun, 25 Jan 2026 13:14:46 +0300
+Subject: [PATCH] [REF] Move server to contrib folder
+
+---
+ .gitignore                              |  2 +-
+ contrib/test_disk-server/CMakeLists.txt | 11 +++++
+ contrib/test_disk-server/server.cpp     | 63 +++++++++++++++++++++++++
+ contrib/test_disk-server/structs.h      |  4 ++
+ 4 files changed, 79 insertions(+), 1 deletion(-)
+ create mode 100644 contrib/test_disk-server/CMakeLists.txt
+ create mode 100644 contrib/test_disk-server/server.cpp
+ create mode 100644 contrib/test_disk-server/structs.h
+
+diff --git a/.gitignore b/.gitignore
+index a0687c79d5..8bd68a1839 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -2,7 +2,7 @@
+ /build/
+ /.cache/
+ /.vscode/
+-/.idea/
++.idea/
+ *.pyc
+ .sdk
+ .stgit-*
+diff --git a/contrib/test_disk-server/CMakeLists.txt b/contrib/test_disk-server/CMakeLists.txt
+new file mode 100644
+index 0000000000..271c60b05c
+--- /dev/null
++++ b/contrib/test_disk-server/CMakeLists.txt
+@@ -0,0 +1,11 @@
++cmake_minimum_required(VERSION 3.31)
++project(qemu_server LANGUAGES CXX)
++
++set(CMAKE_CXX_STANDARD 20)
++
++add_executable(${PROJECT_NAME})
++
++target_sources(${PROJECT_NAME}
++    PRIVATE
++        server.cpp
++)
+diff --git a/contrib/test_disk-server/server.cpp b/contrib/test_disk-server/server.cpp
+new file mode 100644
+index 0000000000..bf4e523bee
+--- /dev/null
++++ b/contrib/test_disk-server/server.cpp
+@@ -0,0 +1,63 @@
++#include <arpa/inet.h>
++#include <cstring>
++#include <format>
++#include <iomanip>
++#include <iostream>
++#include <netinet/in.h>
++#include <string>
++#include <sys/socket.h>
++
++
++int main() {
++    sockaddr_in addr = {
++        .sin_family = AF_INET,
++        .sin_port = htons(31234),
++        .sin_zero = 0
++    };
++
++    inet_aton("127.0.0.1", &addr.sin_addr);
++
++    int fd = socket(AF_INET, SOCK_STREAM, 0);
++
++    int opt = 1;
++    setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
++
++    bind(fd, reinterpret_cast<sockaddr*>(&addr), sizeof(addr));
++
++    listen(fd, 1);
++
++    uint32_t latency_ms = 1;
++
++    uint8_t latency_ms_be[4];
++    latency_ms_be[0] = latency_ms >> 24;
++    latency_ms_be[1] = latency_ms >> 16;
++    latency_ms_be[2] = latency_ms >>  8;
++    latency_ms_be[3] = latency_ms;
++
++    while (true) {
++        int client_fd = accept(fd, nullptr, nullptr);
++        std::cout << std::format("---- New connection. Latency: {}ms ----", latency_ms) << std::endl;
++        send(client_fd, latency_ms_be, sizeof(latency_ms_be), 0);
++
++        char buffer[1024] = {};
++        while (true) {
++            ssize_t bytes = recv(client_fd, buffer, sizeof(buffer), 0);
++            if (bytes < 0) {
++                break;
++            }
++
++            std::string str(static_cast<size_t>(bytes), '\0');
++            std::memcpy(str.data(), buffer, bytes);
++
++            if (str.empty()) {
++                break;
++            }
++
++            // for (const char ch: str) {
++            //     std::cout << "0x" << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(ch) << ' ';
++            // }
++            // std::cout << std::endl;
++        }
++        std::cout << "---- Connection closed ----" << std::endl;
++    }
++}
+diff --git a/contrib/test_disk-server/structs.h b/contrib/test_disk-server/structs.h
+new file mode 100644
+index 0000000000..73808f620f
+--- /dev/null
++++ b/contrib/test_disk-server/structs.h
+@@ -0,0 +1,4 @@
++#ifndef STRUCTS_H
++#define STRUCTS_H
++
++#endif //STRUCTS_H
+-- 
+2.52.0
+
