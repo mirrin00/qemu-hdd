@@ -1,0 +1,96 @@
+From 0431f5413a10cb5c688cc67fd6a8cfd43b9b079e Mon Sep 17 00:00:00 2001
+From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
+Date: Sun, 25 Jan 2026 19:33:53 +0300
+Subject: [PATCH] [UPD] Update server
+
+---
+ contrib/test_disk-server/server.cpp | 35 +++++++++++++----------------
+ contrib/test_disk-server/structs.h  |  8 +++++++
+ 2 files changed, 23 insertions(+), 20 deletions(-)
+
+diff --git a/contrib/test_disk-server/server.cpp b/contrib/test_disk-server/server.cpp
+index bf4e523bee..dca2d12727 100644
+--- a/contrib/test_disk-server/server.cpp
++++ b/contrib/test_disk-server/server.cpp
+@@ -5,8 +5,11 @@
+ #include <iostream>
+ #include <netinet/in.h>
+ #include <string>
++#include <bits/this_thread_sleep.h>
+ #include <sys/socket.h>
+ 
++#include "structs.h"
++
+ 
+ int main() {
+     sockaddr_in addr = {
+@@ -26,37 +29,29 @@ int main() {
+ 
+     listen(fd, 1);
+ 
+-    uint32_t latency_ms = 1;
+-
+-    uint8_t latency_ms_be[4];
+-    latency_ms_be[0] = latency_ms >> 24;
+-    latency_ms_be[1] = latency_ms >> 16;
+-    latency_ms_be[2] = latency_ms >>  8;
+-    latency_ms_be[3] = latency_ms;
++    uint32_t latency_ms = 5;
+ 
+     while (true) {
+         int client_fd = accept(fd, nullptr, nullptr);
+         std::cout << std::format("---- New connection. Latency: {}ms ----", latency_ms) << std::endl;
+-        send(client_fd, latency_ms_be, sizeof(latency_ms_be), 0);
+ 
+-        char buffer[1024] = {};
+         while (true) {
+-            ssize_t bytes = recv(client_fd, buffer, sizeof(buffer), 0);
+-            if (bytes < 0) {
++            ServerRequest server_req;
++            ssize_t bytes = recv(client_fd, &server_req, sizeof(server_req), 0);
++            if (bytes <= 0) {
+                 break;
+             }
+ 
+-            std::string str(static_cast<size_t>(bytes), '\0');
+-            std::memcpy(str.data(), buffer, bytes);
++            std::cout << "Received: command = 0x" << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(server_req.command) << std::endl;
+ 
+-            if (str.empty()) {
+-                break;
+-            }
++            ServerResponse server_res;
++            server_res.latency = latency_ms;
++
++            send(client_fd, &server_res, sizeof(server_res), 0);
++
++            std::this_thread::sleep_for(std::chrono::milliseconds(50));
+ 
+-            // for (const char ch: str) {
+-            //     std::cout << "0x" << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(ch) << ' ';
+-            // }
+-            // std::cout << std::endl;
++            std::cout << "Sent: latency = " << latency_ms << std::endl;
+         }
+         std::cout << "---- Connection closed ----" << std::endl;
+     }
+diff --git a/contrib/test_disk-server/structs.h b/contrib/test_disk-server/structs.h
+index 73808f620f..7cca000034 100644
+--- a/contrib/test_disk-server/structs.h
++++ b/contrib/test_disk-server/structs.h
+@@ -1,4 +1,12 @@
+ #ifndef STRUCTS_H
+ #define STRUCTS_H
+ 
++typedef struct ServerRequest {
++    uint8_t command;
++} ServerRequest;
++
++typedef struct ServerResponse {
++    uint32_t latency;
++} ServerResponse;
++
+ #endif //STRUCTS_H
+-- 
+2.52.0
+
