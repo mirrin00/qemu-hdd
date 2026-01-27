@@ -1,0 +1,99 @@
+From 203f72d3f7faac9fff18db906ac12f3f25ae894e Mon Sep 17 00:00:00 2001
+From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
+Date: Tue, 27 Jan 2026 15:11:41 +0300
+Subject: [PATCH] [ADD] Add WRITE command handling
+
+---
+ hw/scsi/test_disk.c | 19 +++++++++++++------
+ 1 file changed, 13 insertions(+), 6 deletions(-)
+
+diff --git a/hw/scsi/test_disk.c b/hw/scsi/test_disk.c
+index 4124631d23..216d38a394 100644
+--- a/hw/scsi/test_disk.c
++++ b/hw/scsi/test_disk.c
+@@ -30,6 +30,7 @@ typedef struct TestDiskReq {
+ // Request handlers
+ static int32_t test_disk_send_command(SCSIRequest* scsi_req, uint8_t* request_buf);
+ static void test_disk_read_data(SCSIRequest* scsi_req);
++static void test_disk_write_data(SCSIRequest* scsi_req);
+ static uint8_t* test_disk_get_buf(SCSIRequest* scsi_req);
+ static void test_disk_free_req(SCSIRequest* scsi_req);
+ 
+@@ -39,6 +40,7 @@ static const SCSIReqOps test_disk_req_ops = {
+     .size = sizeof(TestDiskReq),
+     .send_command = test_disk_send_command,
+     .read_data = test_disk_read_data,
++    .write_data = test_disk_write_data,
+     .get_buf = test_disk_get_buf,
+     .free_req = test_disk_free_req
+ };
+@@ -48,7 +50,7 @@ static const SCSIReqOps test_disk_req_ops = {
+ static void test_disk_socket_start_connection(void* opaque);
+ static void test_disk_socket_connected(QIOTask* task, gpointer opaque);
+ static gboolean test_disk_socket_watch(QIOChannel* ioc, GIOCondition condition, gpointer opaque);
+-static void test_disk_read_callback(void* opaque);
++static void test_disk_io_callback(void* opaque);
+ 
+ 
+ // ============================================================================
+@@ -121,7 +123,7 @@ static int32_t test_disk_send_command(SCSIRequest* scsi_req, uint8_t* request_bu
+             memset(disk_req->response_buf, 0, 4);
+ 
+             disk_req->response_buf[0] = 3; // length
+-            disk_req->response_buf[2] = 0x80; // write protection
++            // disk_req->response_buf[2] = 0x80; // write protection
+ 
+             scsi_req_data(scsi_req, 4);
+             break;
+@@ -131,13 +133,15 @@ static int32_t test_disk_send_command(SCSIRequest* scsi_req, uint8_t* request_bu
+ 
+             disk_req->response_buf[0] = 0;
+             disk_req->response_buf[1] = 6;
+-            disk_req->response_buf[3] = 0x80;
++            // disk_req->response_buf[3] = 0x80;
+ 
+             scsi_req_data(scsi_req, 8);
+             break;
+ 
+         case 0x08: // READ (6)
+         case 0x28: // READ (10)
++        case 0x0A: // WRITE (6)
++        case 0x2A: // WRITE (10)
+ 
+             int req_target_len = (int)scsi_req->cmd.xfer;
+ 
+@@ -209,7 +213,7 @@ static int32_t test_disk_send_command(SCSIRequest* scsi_req, uint8_t* request_bu
+             }
+ 
+             disk_req->response_buf_len = req_target_len;
+-            disk_req->timer = timer_new_ms(QEMU_CLOCK_REALTIME, test_disk_read_callback, disk_req);
++            disk_req->timer = timer_new_ms(QEMU_CLOCK_REALTIME, test_disk_io_callback, disk_req);
+             timer_mod(disk_req->timer, qemu_clock_get_ms(QEMU_CLOCK_REALTIME) + latency_ms);
+ 
+             break;
+@@ -229,6 +233,10 @@ static void test_disk_read_data(SCSIRequest* scsi_req) {
+     scsi_req_complete(scsi_req, GOOD);
+ }
+ 
++static void test_disk_write_data(SCSIRequest* scsi_req) {
++    scsi_req_complete(scsi_req, GOOD);
++}
++
+ static uint8_t* test_disk_get_buf(SCSIRequest* scsi_req) {
+     TestDiskReq* disk_req = DO_UPCAST(TestDiskReq, parent_scsi_req, scsi_req);
+     return disk_req->response_buf;
+@@ -316,10 +324,9 @@ static gboolean test_disk_socket_watch(QIOChannel* ioc, GIOCondition condition,
+     return TRUE;
+ }
+ 
+-static void test_disk_read_callback(void* opaque) {
++static void test_disk_io_callback(void* opaque) {
+     TestDiskReq* req = opaque;
+ 
+-    // read request returns zeros
+     memset(req->response_buf, 0, req->response_buf_len);
+     scsi_req_data(&req->parent_scsi_req, req->response_buf_len);
+ 
+-- 
+2.52.0
+
