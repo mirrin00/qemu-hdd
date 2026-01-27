@@ -1,0 +1,40 @@
+diff --git a/contrib/test_disk-server/server.cpp b/contrib/test_disk-server/server.cpp
+index dca2d12727..65f3c59cc8 100644
+--- a/contrib/test_disk-server/server.cpp
++++ b/contrib/test_disk-server/server.cpp
+@@ -29,11 +29,12 @@ int main() {
+ 
+     listen(fd, 1);
+ 
+-    uint32_t latency_ms = 5;
++    uint32_t read_latency_ms = 5;
++    uint32_t write_latency_ms = 5;
+ 
+     while (true) {
+         int client_fd = accept(fd, nullptr, nullptr);
+-        std::cout << std::format("---- New connection. Latency: {}ms ----", latency_ms) << std::endl;
++        std::cout << std::format("---- New connection ---- ") << std::endl;
+ 
+         while (true) {
+             ServerRequest server_req;
+@@ -42,16 +43,16 @@ int main() {
+                 break;
+             }
+ 
+-            std::cout << "Received: command = 0x" << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(server_req.command) << std::endl;
++            std::cout << std::format("Received: command = 0x{:02x}", static_cast<int>(server_req.command)) << std::endl;
+ 
+             ServerResponse server_res;
+-            server_res.latency = latency_ms;
++            server_res.latency = server_req.command == 0x28 || server_req.command == 0x08 ? read_latency_ms : write_latency_ms;
+ 
+             send(client_fd, &server_res, sizeof(server_res), 0);
+ 
+-            std::this_thread::sleep_for(std::chrono::milliseconds(50));
++            // std::this_thread::sleep_for(std::chrono::milliseconds(50));
+ 
+-            std::cout << "Sent: latency = " << latency_ms << std::endl;
++            std::cout << "Sent: latency = " << server_res.latency << std::endl;
+         }
+         std::cout << "---- Connection closed ----" << std::endl;
+     }
