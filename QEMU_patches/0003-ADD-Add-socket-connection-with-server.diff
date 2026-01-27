@@ -1,13 +1,3 @@
-From 30039cdfd25a3706d3736a6fba1630c9125143e0 Mon Sep 17 00:00:00 2001
-From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
-Date: Tue, 20 Jan 2026 20:24:58 +0300
-Subject: [PATCH 3/4] [ADD] Add socket connection with server
-
----
- hw/scsi/test_disk.c         | 72 +++++++++++++++++++++++++------------
- include/hw/scsi/test_disk.h |  2 ++
- 2 files changed, 52 insertions(+), 22 deletions(-)
-
 diff --git a/hw/scsi/test_disk.c b/hw/scsi/test_disk.c
 index 42a4f220f1..01481301fa 100644
 --- a/hw/scsi/test_disk.c
@@ -172,6 +162,3 @@ index ac9e278372..c6a07db5dd 100644
  
  #endif //HW_SCSI_TEST_DISK_H
 \ No newline at end of file
--- 
-2.52.0
-

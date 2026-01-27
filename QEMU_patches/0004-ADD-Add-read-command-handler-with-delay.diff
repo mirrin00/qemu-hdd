@@ -1,12 +1,3 @@
-From bdcc99c3fef44623ab515b5fc3db93758ff61c22 Mon Sep 17 00:00:00 2001
-From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
-Date: Wed, 21 Jan 2026 20:00:40 +0300
-Subject: [PATCH 4/4] [ADD] Add read command handler with delay
-
----
- hw/scsi/test_disk.c | 69 ++++++++++++++++++++++++++++++++++++++++++---
- 1 file changed, 65 insertions(+), 4 deletions(-)
-
 diff --git a/hw/scsi/test_disk.c b/hw/scsi/test_disk.c
 index 01481301fa..a4bf98bf5f 100644
 --- a/hw/scsi/test_disk.c
@@ -129,6 +120,3 @@ index 01481301fa..a4bf98bf5f 100644
      TestDisk* disk = DO_UPCAST(TestDisk, parent_obj, dev);
  
      SocketAddress addr = {
--- 
-2.52.0
-

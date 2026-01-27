@@ -1,13 +1,3 @@
-From 0431f5413a10cb5c688cc67fd6a8cfd43b9b079e Mon Sep 17 00:00:00 2001
-From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
-Date: Sun, 25 Jan 2026 19:33:53 +0300
-Subject: [PATCH] [UPD] Update server
-
----
- contrib/test_disk-server/server.cpp | 35 +++++++++++++----------------
- contrib/test_disk-server/structs.h  |  8 +++++++
- 2 files changed, 23 insertions(+), 20 deletions(-)
-
 diff --git a/contrib/test_disk-server/server.cpp b/contrib/test_disk-server/server.cpp
 index bf4e523bee..dca2d12727 100644
 --- a/contrib/test_disk-server/server.cpp
@@ -91,6 +81,3 @@ index 73808f620f..7cca000034 100644
 +} ServerResponse;
 +
  #endif //STRUCTS_H
--- 
-2.52.0
-
