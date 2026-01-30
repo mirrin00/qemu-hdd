@@ -1,0 +1,88 @@
+diff --git a/hw/scsi/test_disk.c b/hw/scsi/test_disk.c
+index 216d38a394..6ab9300711 100644
+--- a/hw/scsi/test_disk.c
++++ b/hw/scsi/test_disk.c
+@@ -85,14 +85,6 @@ static int32_t test_disk_send_command(SCSIRequest* scsi_req, uint8_t* request_bu
+         return 0;
+     }
+ 
+-    if (disk->unit_attention) {
+-        disk->unit_attention = false;
+-
+-        scsi_req_build_sense(scsi_req, SENSE_CODE(MEDIUM_CHANGED));
+-        scsi_req_complete(scsi_req, CHECK_CONDITION);
+-        return 0;
+-    }
+-
+     switch (command) {
+         case 0x00: // TEST UNIT READY
+             scsi_req_complete(scsi_req, GOOD);
+@@ -191,9 +183,11 @@ static int32_t test_disk_send_command(SCSIRequest* scsi_req, uint8_t* request_bu
+                 }
+             }
+ 
+-            disk->socket_watcher_tag = qio_channel_add_watch(QIO_CHANNEL(disk->socket), G_IO_IN | G_IO_HUP | G_IO_ERR, test_disk_socket_watch, disk, NULL);
++            if (socket_alive) {
++                disk->socket_watcher_tag = qio_channel_add_watch(QIO_CHANNEL(disk->socket), G_IO_IN | G_IO_HUP | G_IO_ERR, test_disk_socket_watch, disk, NULL);
+ 
+-            qio_channel_set_blocking(QIO_CHANNEL(disk->socket), false, NULL);
++                qio_channel_set_blocking(QIO_CHANNEL(disk->socket), false, NULL);
++            }
+ 
+             cpu_enable_ticks();
+             // ---
+@@ -202,9 +196,6 @@ static int32_t test_disk_send_command(SCSIRequest* scsi_req, uint8_t* request_bu
+                 object_unref(OBJECT(disk->socket));
+                 disk->socket = NULL;
+ 
+-                g_source_remove(disk->socket_watcher_tag);
+-                disk->socket_watcher_tag = 0;
+-
+                 timer_mod(disk->socket_connect_timer, qemu_clock_get_ms(QEMU_CLOCK_REALTIME) + 5000);
+ 
+                 scsi_req_build_sense(scsi_req, SENSE_CODE(NOT_READY));
+@@ -289,9 +280,6 @@ static void test_disk_socket_connected(QIOTask* task, gpointer opaque) {
+ 
+     disk->socket_watcher_tag = qio_channel_add_watch(QIO_CHANNEL(disk->socket), G_IO_IN | G_IO_HUP | G_IO_ERR, test_disk_socket_watch, disk, NULL);
+ 
+-    disk->unit_attention = true;
+-    scsi_device_report_change(&disk->parent_scsi_dev, SENSE_CODE(MEDIUM_CHANGED));
+-
+     printf("[SOCKET]: connected successfully\n");
+ }
+ 
+@@ -314,10 +302,10 @@ static gboolean test_disk_socket_watch(QIOChannel* ioc, GIOCondition condition,
+         if (disk->socket) {
+             object_unref(OBJECT(disk->socket));
+             disk->socket = NULL;
+-
+-            timer_mod(disk->socket_connect_timer, qemu_clock_get_ms(QEMU_CLOCK_REALTIME) + 1000);
+         }
+ 
++        disk->socket_watcher_tag = 0;
++        timer_mod(disk->socket_connect_timer, qemu_clock_get_ms(QEMU_CLOCK_REALTIME) + 1000);
+         return FALSE;
+     }
+ 
+@@ -366,8 +354,6 @@ static void test_disk_realize(SCSIDevice* scsi_dev, Error** errp) {
+     scsi_dev->type = TYPE_DISK;
+     scsi_dev->blocksize = (int)disk->block_size;
+ 
+-    disk->unit_attention = false;
+-
+     disk->socket_connect_timer = timer_new_ms(QEMU_CLOCK_REALTIME, test_disk_socket_start_connection, disk);
+     timer_mod(disk->socket_connect_timer, qemu_clock_get_ms(QEMU_CLOCK_REALTIME) + 1000);
+ 
+diff --git a/hw/scsi/test_disk.h b/hw/scsi/test_disk.h
+index acc1285d62..4ef28ee37a 100644
+--- a/hw/scsi/test_disk.h
++++ b/hw/scsi/test_disk.h
+@@ -19,8 +19,6 @@ struct TestDisk {
+     QEMUTimer* socket_connect_timer;
+     bool connecting;
+ 
+-    bool unit_attention;
+-
+     guint socket_watcher_tag;
+ };
+ 

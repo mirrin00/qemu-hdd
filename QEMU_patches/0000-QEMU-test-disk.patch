@@ -1,7 +1,7 @@
-From f215b288c13f8c22b56d1ee3c0075e8e62f66a25 Mon Sep 17 00:00:00 2001
+From 8ed4f2e62436a5437af099abe3bd09eb7e62a30e Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Tue, 13 Jan 2026 19:53:51 +0300
-Subject: [PATCH 01/13] [ADD] Add test scsi disk
+Subject: [PATCH 01/14] [ADD] Add test scsi disk
 
 ---
  .gitignore                  |  1 +
@@ -120,10 +120,10 @@ index 0000000000..be2f7ccbd3
 2.52.0
 
 
-From 1ccb140d1f5a6eca61d06c7f5c5b3a0c82af7f29 Mon Sep 17 00:00:00 2001
+From fd961d2a2a6cf2db5928ec5ffb84910e0ca19bf5 Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Thu, 15 Jan 2026 18:12:16 +0300
-Subject: [PATCH 02/13] [ADD] Add basic request handling
+Subject: [PATCH 02/14] [ADD] Add basic request handling
 
 ---
  hw/scsi/test_disk.c         | 104 +++++++++++++++++++++++++++++++++++-
@@ -276,10 +276,10 @@ index be2f7ccbd3..ac9e278372 100644
 2.52.0
 
 
-From d6839a149546657078cebbc1b4256ec4b4f70b36 Mon Sep 17 00:00:00 2001
+From f8468c360dcf2353d2cffd0712a04dff520b743d Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Tue, 20 Jan 2026 20:24:58 +0300
-Subject: [PATCH 03/13] [ADD] Add socket connection with server
+Subject: [PATCH 03/14] [ADD] Add socket connection with server
 
 ---
  hw/scsi/test_disk.c         | 72 +++++++++++++++++++++++++------------
@@ -454,10 +454,10 @@ index ac9e278372..c6a07db5dd 100644
 2.52.0
 
 
-From 28371268b994e5819a3642dcb7e58c6fdae7d3aa Mon Sep 17 00:00:00 2001
+From a36489ccb7e6f08b894cebbfb99bc850d81e1bdf Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Wed, 21 Jan 2026 20:00:40 +0300
-Subject: [PATCH 04/13] [ADD] Add read command handler with delay
+Subject: [PATCH 04/14] [ADD] Add read command handler with delay
 
 ---
  hw/scsi/test_disk.c | 69 ++++++++++++++++++++++++++++++++++++++++++---
@@ -589,10 +589,10 @@ index 01481301fa..a4bf98bf5f 100644
 2.52.0
 
 
-From eae23ad08b974a964a6c80fef018e995f4a920f1 Mon Sep 17 00:00:00 2001
+From f58f4b282e6806f756b1e43bb69d69df0c651c0e Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Thu, 22 Jan 2026 18:37:00 +0300
-Subject: [PATCH 05/13] [ADD] Add ability to set constants
+Subject: [PATCH 05/14] [ADD] Add ability to set constants
 
 ---
  hw/scsi/test_disk.c         | 47 +++++++++++++++++++++++++++++--------
@@ -722,10 +722,10 @@ index c6a07db5dd..a86908d965 100644
 2.52.0
 
 
-From 964e7561bb07d54db9cc8957723c55398fd9c845 Mon Sep 17 00:00:00 2001
+From b7512e6397711483884d3df5567aa935a3ad5f7a Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Fri, 23 Jan 2026 01:28:47 +0300
-Subject: [PATCH 06/13] [REF] Reafactor + async socket connection and
+Subject: [PATCH 06/14] [REF] Reafactor + async socket connection and
  reconnection mechanism
 
 ---
@@ -1218,10 +1218,10 @@ index a86908d965..568f975961 100644
 2.52.0
 
 
-From 40a18a55ac3aa820d093b38d2a03a596f33fc291 Mon Sep 17 00:00:00 2001
+From 0ed855e8696ea5cb6ace84e35c3054f791df24bd Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Fri, 23 Jan 2026 12:55:40 +0300
-Subject: [PATCH 07/13] [REF] Minor refactoring
+Subject: [PATCH 07/14] [REF] Minor refactoring
 
 ---
  hw/scsi/test_disk.c | 23 +++++------------------
@@ -1315,10 +1315,10 @@ index 568f975961..91aecea9b1 100644
 2.52.0
 
 
-From ab99f10274b0a73c1082cc51129ca4758efffd22 Mon Sep 17 00:00:00 2001
+From 15c9875a791b16b825b62fb23e93dca231674f48 Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Fri, 23 Jan 2026 16:12:43 +0300
-Subject: [PATCH 08/13] [ADD] Add socket disconnection watcher
+Subject: [PATCH 08/14] [ADD] Add socket disconnection watcher
 
 ---
  hw/scsi/test_disk.c | 47 +++++++++++++++++++++++++++++++++++++++++++--
@@ -1429,10 +1429,10 @@ index 91aecea9b1..1a9c70eacf 100644
 2.52.0
 
 
-From fd644d05f3f17b0a805ec03db0a07ecb2aeef5a2 Mon Sep 17 00:00:00 2001
+From b699116cbf9887b60fa7b93fcafad283a17c90f8 Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Sun, 25 Jan 2026 13:14:46 +0300
-Subject: [PATCH 09/13] [REF] Move server to contrib folder
+Subject: [PATCH 09/14] [REF] Move server to contrib folder
 
 ---
  .gitignore                              |  2 +-
@@ -1557,10 +1557,10 @@ index 0000000000..73808f620f
 2.52.0
 
 
-From 7872afd3baccae5186a5020688a38e86c5f45400 Mon Sep 17 00:00:00 2001
+From 685ec0268fb250944cb281ec4466c78030e10270 Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Sun, 25 Jan 2026 19:33:53 +0300
-Subject: [PATCH 10/13] [UPD] Update server
+Subject: [PATCH 10/14] [UPD] Update server
 
 ---
  contrib/test_disk-server/server.cpp | 35 +++++++++++++----------------
@@ -1654,10 +1654,10 @@ index 73808f620f..7cca000034 100644
 2.52.0
 
 
-From 417d6c4d6bf2fbb5522ba311ccdcd262dded59ab Mon Sep 17 00:00:00 2001
+From 42e627b92da157e403a22b35a8243d041c2c8516 Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Sun, 25 Jan 2026 19:36:53 +0300
-Subject: [PATCH 11/13] [UPD] Change logic of acquiring latency value from
+Subject: [PATCH 11/14] [UPD] Change logic of acquiring latency value from
  server
 
 ---
@@ -1813,10 +1813,10 @@ index 1a9c70eacf..acc1285d62 100644
 2.52.0
 
 
-From 908a4f514cf168952ff52e765fa17ad10ba42afc Mon Sep 17 00:00:00 2001
+From 10dc85980324382e51a50546f979c730080d8ab7 Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Tue, 27 Jan 2026 15:11:41 +0300
-Subject: [PATCH 12/13] [ADD] Add WRITE command handling
+Subject: [PATCH 12/14] [ADD] Add WRITE command handling
 
 ---
  hw/scsi/test_disk.c | 19 +++++++++++++------
@@ -1913,10 +1913,10 @@ index 4124631d23..216d38a394 100644
 2.52.0
 
 
-From dd72bf9c228968e11f64a521f86e2fc1ec4e46c4 Mon Sep 17 00:00:00 2001
+From 1362632ba169dd5d2f33c7e2ac5b14f12dc54590 Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Tue, 27 Jan 2026 15:12:39 +0300
-Subject: [PATCH 13/13] [ADD] Server: Add WRITE latency parameter
+Subject: [PATCH 13/14] [ADD] Server: Add WRITE latency parameter
 
 ---
  contrib/test_disk-server/server.cpp | 13 +++++++------
@@ -1962,6 +1962,109 @@ index dca2d12727..65f3c59cc8 100644
          }
          std::cout << "---- Connection closed ----" << std::endl;
      }
+-- 
+2.52.0
+
+
+From 72a2b74005a8636af694441426652e534d9e976d Mon Sep 17 00:00:00 2001
+From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
+Date: Fri, 30 Jan 2026 20:58:46 +0300
+Subject: [PATCH 14/14] [FIX] Remove unit_attention and MEDIUM_CHANGE call
+ causing SEGFAULT
+
+---
+ hw/scsi/test_disk.c | 26 ++++++--------------------
+ hw/scsi/test_disk.h |  2 --
+ 2 files changed, 6 insertions(+), 22 deletions(-)
+
+diff --git a/hw/scsi/test_disk.c b/hw/scsi/test_disk.c
+index 216d38a394..6ab9300711 100644
+--- a/hw/scsi/test_disk.c
++++ b/hw/scsi/test_disk.c
+@@ -85,14 +85,6 @@ static int32_t test_disk_send_command(SCSIRequest* scsi_req, uint8_t* request_bu
+         return 0;
+     }
+ 
+-    if (disk->unit_attention) {
+-        disk->unit_attention = false;
+-
+-        scsi_req_build_sense(scsi_req, SENSE_CODE(MEDIUM_CHANGED));
+-        scsi_req_complete(scsi_req, CHECK_CONDITION);
+-        return 0;
+-    }
+-
+     switch (command) {
+         case 0x00: // TEST UNIT READY
+             scsi_req_complete(scsi_req, GOOD);
+@@ -191,9 +183,11 @@ static int32_t test_disk_send_command(SCSIRequest* scsi_req, uint8_t* request_bu
+                 }
+             }
+ 
+-            disk->socket_watcher_tag = qio_channel_add_watch(QIO_CHANNEL(disk->socket), G_IO_IN | G_IO_HUP | G_IO_ERR, test_disk_socket_watch, disk, NULL);
++            if (socket_alive) {
++                disk->socket_watcher_tag = qio_channel_add_watch(QIO_CHANNEL(disk->socket), G_IO_IN | G_IO_HUP | G_IO_ERR, test_disk_socket_watch, disk, NULL);
+ 
+-            qio_channel_set_blocking(QIO_CHANNEL(disk->socket), false, NULL);
++                qio_channel_set_blocking(QIO_CHANNEL(disk->socket), false, NULL);
++            }
+ 
+             cpu_enable_ticks();
+             // ---
+@@ -202,9 +196,6 @@ static int32_t test_disk_send_command(SCSIRequest* scsi_req, uint8_t* request_bu
+                 object_unref(OBJECT(disk->socket));
+                 disk->socket = NULL;
+ 
+-                g_source_remove(disk->socket_watcher_tag);
+-                disk->socket_watcher_tag = 0;
+-
+                 timer_mod(disk->socket_connect_timer, qemu_clock_get_ms(QEMU_CLOCK_REALTIME) + 5000);
+ 
+                 scsi_req_build_sense(scsi_req, SENSE_CODE(NOT_READY));
+@@ -289,9 +280,6 @@ static void test_disk_socket_connected(QIOTask* task, gpointer opaque) {
+ 
+     disk->socket_watcher_tag = qio_channel_add_watch(QIO_CHANNEL(disk->socket), G_IO_IN | G_IO_HUP | G_IO_ERR, test_disk_socket_watch, disk, NULL);
+ 
+-    disk->unit_attention = true;
+-    scsi_device_report_change(&disk->parent_scsi_dev, SENSE_CODE(MEDIUM_CHANGED));
+-
+     printf("[SOCKET]: connected successfully\n");
+ }
+ 
+@@ -314,10 +302,10 @@ static gboolean test_disk_socket_watch(QIOChannel* ioc, GIOCondition condition,
+         if (disk->socket) {
+             object_unref(OBJECT(disk->socket));
+             disk->socket = NULL;
+-
+-            timer_mod(disk->socket_connect_timer, qemu_clock_get_ms(QEMU_CLOCK_REALTIME) + 1000);
+         }
+ 
++        disk->socket_watcher_tag = 0;
++        timer_mod(disk->socket_connect_timer, qemu_clock_get_ms(QEMU_CLOCK_REALTIME) + 1000);
+         return FALSE;
+     }
+ 
+@@ -366,8 +354,6 @@ static void test_disk_realize(SCSIDevice* scsi_dev, Error** errp) {
+     scsi_dev->type = TYPE_DISK;
+     scsi_dev->blocksize = (int)disk->block_size;
+ 
+-    disk->unit_attention = false;
+-
+     disk->socket_connect_timer = timer_new_ms(QEMU_CLOCK_REALTIME, test_disk_socket_start_connection, disk);
+     timer_mod(disk->socket_connect_timer, qemu_clock_get_ms(QEMU_CLOCK_REALTIME) + 1000);
+ 
+diff --git a/hw/scsi/test_disk.h b/hw/scsi/test_disk.h
+index acc1285d62..4ef28ee37a 100644
+--- a/hw/scsi/test_disk.h
++++ b/hw/scsi/test_disk.h
+@@ -19,8 +19,6 @@ struct TestDisk {
+     QEMUTimer* socket_connect_timer;
+     bool connecting;
+ 
+-    bool unit_attention;
+-
+     guint socket_watcher_tag;
+ };
+ 
 -- 
 2.52.0
 
