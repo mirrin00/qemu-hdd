@@ -1,7 +1,7 @@
 From 8ed4f2e62436a5437af099abe3bd09eb7e62a30e Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Tue, 13 Jan 2026 19:53:51 +0300
-Subject: [PATCH 01/14] [ADD] Add test scsi disk
+Subject: [PATCH 01/15] [ADD] Add test scsi disk
 
 ---
  .gitignore                  |  1 +
@@ -123,7 +123,7 @@ index 0000000000..be2f7ccbd3
 From fd961d2a2a6cf2db5928ec5ffb84910e0ca19bf5 Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Thu, 15 Jan 2026 18:12:16 +0300
-Subject: [PATCH 02/14] [ADD] Add basic request handling
+Subject: [PATCH 02/15] [ADD] Add basic request handling
 
 ---
  hw/scsi/test_disk.c         | 104 +++++++++++++++++++++++++++++++++++-
@@ -279,7 +279,7 @@ index be2f7ccbd3..ac9e278372 100644
 From f8468c360dcf2353d2cffd0712a04dff520b743d Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Tue, 20 Jan 2026 20:24:58 +0300
-Subject: [PATCH 03/14] [ADD] Add socket connection with server
+Subject: [PATCH 03/15] [ADD] Add socket connection with server
 
 ---
  hw/scsi/test_disk.c         | 72 +++++++++++++++++++++++++------------
@@ -457,7 +457,7 @@ index ac9e278372..c6a07db5dd 100644
 From a36489ccb7e6f08b894cebbfb99bc850d81e1bdf Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Wed, 21 Jan 2026 20:00:40 +0300
-Subject: [PATCH 04/14] [ADD] Add read command handler with delay
+Subject: [PATCH 04/15] [ADD] Add read command handler with delay
 
 ---
  hw/scsi/test_disk.c | 69 ++++++++++++++++++++++++++++++++++++++++++---
@@ -592,7 +592,7 @@ index 01481301fa..a4bf98bf5f 100644
 From f58f4b282e6806f756b1e43bb69d69df0c651c0e Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Thu, 22 Jan 2026 18:37:00 +0300
-Subject: [PATCH 05/14] [ADD] Add ability to set constants
+Subject: [PATCH 05/15] [ADD] Add ability to set constants
 
 ---
  hw/scsi/test_disk.c         | 47 +++++++++++++++++++++++++++++--------
@@ -725,7 +725,7 @@ index c6a07db5dd..a86908d965 100644
 From b7512e6397711483884d3df5567aa935a3ad5f7a Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Fri, 23 Jan 2026 01:28:47 +0300
-Subject: [PATCH 06/14] [REF] Reafactor + async socket connection and
+Subject: [PATCH 06/15] [REF] Reafactor + async socket connection and
  reconnection mechanism
 
 ---
@@ -1221,7 +1221,7 @@ index a86908d965..568f975961 100644
 From 0ed855e8696ea5cb6ace84e35c3054f791df24bd Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Fri, 23 Jan 2026 12:55:40 +0300
-Subject: [PATCH 07/14] [REF] Minor refactoring
+Subject: [PATCH 07/15] [REF] Minor refactoring
 
 ---
  hw/scsi/test_disk.c | 23 +++++------------------
@@ -1318,7 +1318,7 @@ index 568f975961..91aecea9b1 100644
 From 15c9875a791b16b825b62fb23e93dca231674f48 Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Fri, 23 Jan 2026 16:12:43 +0300
-Subject: [PATCH 08/14] [ADD] Add socket disconnection watcher
+Subject: [PATCH 08/15] [ADD] Add socket disconnection watcher
 
 ---
  hw/scsi/test_disk.c | 47 +++++++++++++++++++++++++++++++++++++++++++--
@@ -1432,7 +1432,7 @@ index 91aecea9b1..1a9c70eacf 100644
 From b699116cbf9887b60fa7b93fcafad283a17c90f8 Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Sun, 25 Jan 2026 13:14:46 +0300
-Subject: [PATCH 09/14] [REF] Move server to contrib folder
+Subject: [PATCH 09/15] [REF] Move server to contrib folder
 
 ---
  .gitignore                              |  2 +-
@@ -1560,7 +1560,7 @@ index 0000000000..73808f620f
 From 685ec0268fb250944cb281ec4466c78030e10270 Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Sun, 25 Jan 2026 19:33:53 +0300
-Subject: [PATCH 10/14] [UPD] Update server
+Subject: [PATCH 10/15] [UPD] Update server
 
 ---
  contrib/test_disk-server/server.cpp | 35 +++++++++++++----------------
@@ -1657,7 +1657,7 @@ index 73808f620f..7cca000034 100644
 From 42e627b92da157e403a22b35a8243d041c2c8516 Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Sun, 25 Jan 2026 19:36:53 +0300
-Subject: [PATCH 11/14] [UPD] Change logic of acquiring latency value from
+Subject: [PATCH 11/15] [UPD] Change logic of acquiring latency value from
  server
 
 ---
@@ -1816,7 +1816,7 @@ index 1a9c70eacf..acc1285d62 100644
 From 10dc85980324382e51a50546f979c730080d8ab7 Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Tue, 27 Jan 2026 15:11:41 +0300
-Subject: [PATCH 12/14] [ADD] Add WRITE command handling
+Subject: [PATCH 12/15] [ADD] Add WRITE command handling
 
 ---
  hw/scsi/test_disk.c | 19 +++++++++++++------
@@ -1916,7 +1916,7 @@ index 4124631d23..216d38a394 100644
 From 1362632ba169dd5d2f33c7e2ac5b14f12dc54590 Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Tue, 27 Jan 2026 15:12:39 +0300
-Subject: [PATCH 13/14] [ADD] Server: Add WRITE latency parameter
+Subject: [PATCH 13/15] [ADD] Server: Add WRITE latency parameter
 
 ---
  contrib/test_disk-server/server.cpp | 13 +++++++------
@@ -1969,7 +1969,7 @@ index dca2d12727..65f3c59cc8 100644
 From 72a2b74005a8636af694441426652e534d9e976d Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Fri, 30 Jan 2026 20:58:46 +0300
-Subject: [PATCH 14/14] [FIX] Remove unit_attention and MEDIUM_CHANGE call
+Subject: [PATCH 14/15] [FIX] Remove unit_attention and MEDIUM_CHANGE call
  causing SEGFAULT
 
 ---
@@ -2064,6 +2064,212 @@ index acc1285d62..4ef28ee37a 100644
 -
      guint socket_watcher_tag;
  };
+ 
+-- 
+2.52.0
+
+
+From f528365de7f75121cbc5e8c4452f4126885bea2f Mon Sep 17 00:00:00 2001
+From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
+Date: Sun, 1 Feb 2026 15:52:46 +0300
+Subject: [PATCH 15/15] [REF] Use vm_stop() to freeze virtual machine
+
+---
+ hw/scsi/test_disk.c | 144 +++++++++++++++++++++++++++-----------------
+ 1 file changed, 90 insertions(+), 54 deletions(-)
+
+diff --git a/hw/scsi/test_disk.c b/hw/scsi/test_disk.c
+index 6ab9300711..3529ce1288 100644
+--- a/hw/scsi/test_disk.c
++++ b/hw/scsi/test_disk.c
+@@ -1,11 +1,15 @@
+ #include "qemu/osdep.h"
++#include "qemu/main-loop.h"
+ #include "hw/scsi/scsi.h"
+ #include "test_disk.h"
++#include "block/block-common.h"
+ #include "qapi/error.h"
+ #include "qemu/bswap.h"
+ #include "scsi/constants.h"
+ #include "contrib/test_disk-server/structs.h"
++#include "system/block-backend-global-state.h"
+ #include "system/cpu-timers.h"
++#include "system/runstate.h"
+ 
+ #define MAX_XFER_SIZE (1 * 1024 * 1024)
+ 
+@@ -50,9 +54,19 @@ static const SCSIReqOps test_disk_req_ops = {
+ static void test_disk_socket_start_connection(void* opaque);
+ static void test_disk_socket_connected(QIOTask* task, gpointer opaque);
+ static gboolean test_disk_socket_watch(QIOChannel* ioc, GIOCondition condition, gpointer opaque);
++static void test_disk_bh_routine(void* opaque);
+ static void test_disk_io_callback(void* opaque);
+ 
+ 
++// Helper structs
++typedef struct TestDiskBHArgs {
++    TestDisk* disk;
++    SCSIRequest* scsi_req;
++    uint8_t command;
++    int req_target_len;
++} TestDiskBHArgs;
++
++
+ // ============================================================================
+ 
+ 
+@@ -150,62 +164,15 @@ static int32_t test_disk_send_command(SCSIRequest* scsi_req, uint8_t* request_bu
+                 break;
+             }
+ 
+-            uint32_t latency_ms = 0;
+-
+-            // ---
+-            cpu_disable_ticks();
+-
+-            qio_channel_set_blocking(QIO_CHANNEL(disk->socket), true, NULL);
+-
+-            if (disk->socket_watcher_tag > 0) {
+-                g_source_remove(disk->socket_watcher_tag);
+-                disk->socket_watcher_tag = 0;
+-            }
+-
+-            ServerRequest server_req = {
+-                .command = command
+-            };
++            TestDiskBHArgs* args = g_new0(TestDiskBHArgs, 1);
++            args->disk = disk;
++            args->scsi_req = scsi_req;
++            args->command = command;
++            args->req_target_len = req_target_len;
+ 
+-            bool socket_alive = true;
+-            if (qio_channel_write_all(QIO_CHANNEL(disk->socket), &server_req, sizeof(server_req), NULL) == -1) {
+-                socket_alive = false;
+-            }
+-
+-            if (socket_alive) {
+-                ServerResponse server_res;
+-
+-                if (qio_channel_read_all(QIO_CHANNEL(disk->socket), &server_res, sizeof(server_res), NULL) == -1) {
+-                    socket_alive = false;
+-                }
+-
+-                if (socket_alive) {
+-                    latency_ms = server_res.latency;
+-                }
+-            }
+-
+-            if (socket_alive) {
+-                disk->socket_watcher_tag = qio_channel_add_watch(QIO_CHANNEL(disk->socket), G_IO_IN | G_IO_HUP | G_IO_ERR, test_disk_socket_watch, disk, NULL);
+-
+-                qio_channel_set_blocking(QIO_CHANNEL(disk->socket), false, NULL);
+-            }
++            scsi_req_ref(scsi_req);
+ 
+-            cpu_enable_ticks();
+-            // ---
+-
+-            if (!socket_alive) {
+-                object_unref(OBJECT(disk->socket));
+-                disk->socket = NULL;
+-
+-                timer_mod(disk->socket_connect_timer, qemu_clock_get_ms(QEMU_CLOCK_REALTIME) + 5000);
+-
+-                scsi_req_build_sense(scsi_req, SENSE_CODE(NOT_READY));
+-                scsi_req_complete(scsi_req, CHECK_CONDITION);
+-                return 0;
+-            }
+-
+-            disk_req->response_buf_len = req_target_len;
+-            disk_req->timer = timer_new_ms(QEMU_CLOCK_REALTIME, test_disk_io_callback, disk_req);
+-            timer_mod(disk_req->timer, qemu_clock_get_ms(QEMU_CLOCK_REALTIME) + latency_ms);
++            aio_bh_schedule_oneshot(qemu_get_aio_context(), test_disk_bh_routine, args);
+ 
+             break;
+ 
+@@ -312,6 +279,73 @@ static gboolean test_disk_socket_watch(QIOChannel* ioc, GIOCondition condition,
+     return TRUE;
+ }
+ 
++static void test_disk_bh_routine(void* opaque) {
++    TestDiskBHArgs* args = opaque;
++
++    TestDisk* disk = args->disk;
++    SCSIRequest* scsi_req = args->scsi_req;
++    TestDiskReq* disk_req = DO_UPCAST(TestDiskReq, parent_scsi_req, scsi_req);
++
++    if (disk->socket_watcher_tag > 0) {
++        g_source_remove(disk->socket_watcher_tag); // i. remove watcher
++        disk->socket_watcher_tag = 0;
++    }
++
++    vm_stop(RUN_STATE_PAUSED); // ii. pause vm
++
++    ServerRequest server_req = {.command = args->command};
++    ServerResponse server_res;
++
++    qio_channel_set_blocking(QIO_CHANNEL(disk->socket), true, NULL); // iii. set socket blocking true
++
++    uint32_t latency_ms = 0;
++    bool socket_alive = true;
++
++    if (qio_channel_write_all(QIO_CHANNEL(disk->socket), &server_req, sizeof(server_req), NULL) == -1) {
++        socket_alive = false;
++    }
++
++    if (socket_alive) {
++        if (qio_channel_read_all(QIO_CHANNEL(disk->socket), &server_res, sizeof(server_res), NULL) == -1) {
++            socket_alive = false;
++        }
++
++        if (socket_alive) {
++            latency_ms = server_res.latency;
++        }
++    }
++
++    if (socket_alive) {
++        qio_channel_set_blocking(QIO_CHANNEL(disk->socket), false, NULL); // iii. set socket blocking false
++    }
++
++    vm_start(); // ii. start vm
++
++    if (socket_alive) {
++        disk->socket_watcher_tag = qio_channel_add_watch(QIO_CHANNEL(disk->socket), G_IO_IN | G_IO_HUP | G_IO_ERR, test_disk_socket_watch, disk, NULL); // i. add watcher
++    } else {
++        object_unref(OBJECT(disk->socket));
++        disk->socket = NULL;
++
++        timer_mod(disk->socket_connect_timer, qemu_clock_get_ms(QEMU_CLOCK_REALTIME) + 5000);
++
++        scsi_req_build_sense(scsi_req, SENSE_CODE(NOT_READY));
++        scsi_req_complete(scsi_req, CHECK_CONDITION);
++
++        scsi_req_unref(scsi_req);
++        g_free(args);
++
++        return;
++    }
++
++    disk_req->response_buf_len = args->req_target_len;
++    disk_req->timer = timer_new_ms(QEMU_CLOCK_VIRTUAL, test_disk_io_callback, disk_req);
++    timer_mod(disk_req->timer, qemu_clock_get_ms(QEMU_CLOCK_VIRTUAL) + latency_ms);
++
++    scsi_req_unref(scsi_req);
++    g_free(args);
++}
++
+ static void test_disk_io_callback(void* opaque) {
+     TestDiskReq* req = opaque;
+ 
+@@ -354,6 +388,8 @@ static void test_disk_realize(SCSIDevice* scsi_dev, Error** errp) {
+     scsi_dev->type = TYPE_DISK;
+     scsi_dev->blocksize = (int)disk->block_size;
+ 
++    scsi_dev->conf.blk = blk_new(qemu_get_aio_context(), BLK_PERM_ALL, BLK_PERM_ALL);
++
+     disk->socket_connect_timer = timer_new_ms(QEMU_CLOCK_REALTIME, test_disk_socket_start_connection, disk);
+     timer_mod(disk->socket_connect_timer, qemu_clock_get_ms(QEMU_CLOCK_REALTIME) + 1000);
  
 -- 
 2.52.0
