@@ -1,7 +1,7 @@
 From 8ed4f2e62436a5437af099abe3bd09eb7e62a30e Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Tue, 13 Jan 2026 19:53:51 +0300
-Subject: [PATCH 01/15] [ADD] Add test scsi disk
+Subject: [PATCH 01/16] [ADD] Add test scsi disk
 
 ---
  .gitignore                  |  1 +
@@ -123,7 +123,7 @@ index 0000000000..be2f7ccbd3
 From fd961d2a2a6cf2db5928ec5ffb84910e0ca19bf5 Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Thu, 15 Jan 2026 18:12:16 +0300
-Subject: [PATCH 02/15] [ADD] Add basic request handling
+Subject: [PATCH 02/16] [ADD] Add basic request handling
 
 ---
  hw/scsi/test_disk.c         | 104 +++++++++++++++++++++++++++++++++++-
@@ -279,7 +279,7 @@ index be2f7ccbd3..ac9e278372 100644
 From f8468c360dcf2353d2cffd0712a04dff520b743d Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Tue, 20 Jan 2026 20:24:58 +0300
-Subject: [PATCH 03/15] [ADD] Add socket connection with server
+Subject: [PATCH 03/16] [ADD] Add socket connection with server
 
 ---
  hw/scsi/test_disk.c         | 72 +++++++++++++++++++++++++------------
@@ -457,7 +457,7 @@ index ac9e278372..c6a07db5dd 100644
 From a36489ccb7e6f08b894cebbfb99bc850d81e1bdf Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Wed, 21 Jan 2026 20:00:40 +0300
-Subject: [PATCH 04/15] [ADD] Add read command handler with delay
+Subject: [PATCH 04/16] [ADD] Add read command handler with delay
 
 ---
  hw/scsi/test_disk.c | 69 ++++++++++++++++++++++++++++++++++++++++++---
@@ -592,7 +592,7 @@ index 01481301fa..a4bf98bf5f 100644
 From f58f4b282e6806f756b1e43bb69d69df0c651c0e Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Thu, 22 Jan 2026 18:37:00 +0300
-Subject: [PATCH 05/15] [ADD] Add ability to set constants
+Subject: [PATCH 05/16] [ADD] Add ability to set constants
 
 ---
  hw/scsi/test_disk.c         | 47 +++++++++++++++++++++++++++++--------
@@ -725,7 +725,7 @@ index c6a07db5dd..a86908d965 100644
 From b7512e6397711483884d3df5567aa935a3ad5f7a Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Fri, 23 Jan 2026 01:28:47 +0300
-Subject: [PATCH 06/15] [REF] Reafactor + async socket connection and
+Subject: [PATCH 06/16] [REF] Reafactor + async socket connection and
  reconnection mechanism
 
 ---
@@ -1221,7 +1221,7 @@ index a86908d965..568f975961 100644
 From 0ed855e8696ea5cb6ace84e35c3054f791df24bd Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Fri, 23 Jan 2026 12:55:40 +0300
-Subject: [PATCH 07/15] [REF] Minor refactoring
+Subject: [PATCH 07/16] [REF] Minor refactoring
 
 ---
  hw/scsi/test_disk.c | 23 +++++------------------
@@ -1318,7 +1318,7 @@ index 568f975961..91aecea9b1 100644
 From 15c9875a791b16b825b62fb23e93dca231674f48 Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Fri, 23 Jan 2026 16:12:43 +0300
-Subject: [PATCH 08/15] [ADD] Add socket disconnection watcher
+Subject: [PATCH 08/16] [ADD] Add socket disconnection watcher
 
 ---
  hw/scsi/test_disk.c | 47 +++++++++++++++++++++++++++++++++++++++++++--
@@ -1432,7 +1432,7 @@ index 91aecea9b1..1a9c70eacf 100644
 From b699116cbf9887b60fa7b93fcafad283a17c90f8 Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Sun, 25 Jan 2026 13:14:46 +0300
-Subject: [PATCH 09/15] [REF] Move server to contrib folder
+Subject: [PATCH 09/16] [REF] Move server to contrib folder
 
 ---
  .gitignore                              |  2 +-
@@ -1560,7 +1560,7 @@ index 0000000000..73808f620f
 From 685ec0268fb250944cb281ec4466c78030e10270 Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Sun, 25 Jan 2026 19:33:53 +0300
-Subject: [PATCH 10/15] [UPD] Update server
+Subject: [PATCH 10/16] [UPD] Update server
 
 ---
  contrib/test_disk-server/server.cpp | 35 +++++++++++++----------------
@@ -1657,7 +1657,7 @@ index 73808f620f..7cca000034 100644
 From 42e627b92da157e403a22b35a8243d041c2c8516 Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Sun, 25 Jan 2026 19:36:53 +0300
-Subject: [PATCH 11/15] [UPD] Change logic of acquiring latency value from
+Subject: [PATCH 11/16] [UPD] Change logic of acquiring latency value from
  server
 
 ---
@@ -1816,7 +1816,7 @@ index 1a9c70eacf..acc1285d62 100644
 From 10dc85980324382e51a50546f979c730080d8ab7 Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Tue, 27 Jan 2026 15:11:41 +0300
-Subject: [PATCH 12/15] [ADD] Add WRITE command handling
+Subject: [PATCH 12/16] [ADD] Add WRITE command handling
 
 ---
  hw/scsi/test_disk.c | 19 +++++++++++++------
@@ -1916,7 +1916,7 @@ index 4124631d23..216d38a394 100644
 From 1362632ba169dd5d2f33c7e2ac5b14f12dc54590 Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Tue, 27 Jan 2026 15:12:39 +0300
-Subject: [PATCH 13/15] [ADD] Server: Add WRITE latency parameter
+Subject: [PATCH 13/16] [ADD] Server: Add WRITE latency parameter
 
 ---
  contrib/test_disk-server/server.cpp | 13 +++++++------
@@ -1969,7 +1969,7 @@ index dca2d12727..65f3c59cc8 100644
 From 72a2b74005a8636af694441426652e534d9e976d Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Fri, 30 Jan 2026 20:58:46 +0300
-Subject: [PATCH 14/15] [FIX] Remove unit_attention and MEDIUM_CHANGE call
+Subject: [PATCH 14/16] [FIX] Remove unit_attention and MEDIUM_CHANGE call
  causing SEGFAULT
 
 ---
@@ -2072,7 +2072,7 @@ index acc1285d62..4ef28ee37a 100644
 From f528365de7f75121cbc5e8c4452f4126885bea2f Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Sun, 1 Feb 2026 15:52:46 +0300
-Subject: [PATCH 15/15] [REF] Use vm_stop() to freeze virtual machine
+Subject: [PATCH 15/16] [REF] Use vm_stop() to freeze virtual machine
 
 ---
  hw/scsi/test_disk.c | 144 +++++++++++++++++++++++++++-----------------
@@ -2271,6 +2271,117 @@ index 6ab9300711..3529ce1288 100644
      disk->socket_connect_timer = timer_new_ms(QEMU_CLOCK_REALTIME, test_disk_socket_start_connection, disk);
      timer_mod(disk->socket_connect_timer, qemu_clock_get_ms(QEMU_CLOCK_REALTIME) + 1000);
  
+-- 
+2.52.0
+
+
+From e7709e1f7ddee6aa92f19bd7e9f58b96f79a9471 Mon Sep 17 00:00:00 2001
+From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
+Date: Sun, 1 Feb 2026 16:27:56 +0300
+Subject: [PATCH 16/16] [UPD] Extend ServerRequest and ServerResponse structs
+
+---
+ contrib/test_disk-server/server.cpp |  8 ++++++--
+ contrib/test_disk-server/structs.h  | 20 +++++++++++++++++++-
+ hw/scsi/test_disk.c                 |  7 ++++++-
+ hw/scsi/test_disk.h                 |  3 +++
+ 4 files changed, 34 insertions(+), 4 deletions(-)
+
+diff --git a/contrib/test_disk-server/server.cpp b/contrib/test_disk-server/server.cpp
+index 65f3c59cc8..a7a4148459 100644
+--- a/contrib/test_disk-server/server.cpp
++++ b/contrib/test_disk-server/server.cpp
+@@ -43,10 +43,14 @@ int main() {
+                 break;
+             }
+ 
+-            std::cout << std::format("Received: command = 0x{:02x}", static_cast<int>(server_req.command)) << std::endl;
++            if (server_req.source != SOURCE_TEST_DISK) {
++                continue;
++            }
++
++            std::cout << std::format("Received: id = {}, command = 0x{:02x}", server_req.test_disk_payload.disk_id, static_cast<int>(server_req.test_disk_payload.command)) << std::endl;
+ 
+             ServerResponse server_res;
+-            server_res.latency = server_req.command == 0x28 || server_req.command == 0x08 ? read_latency_ms : write_latency_ms;
++            server_res.latency = server_req.test_disk_payload.command == 0x28 || server_req.test_disk_payload.command == 0x08 ? read_latency_ms : write_latency_ms;
+ 
+             send(client_fd, &server_res, sizeof(server_res), 0);
+ 
+diff --git a/contrib/test_disk-server/structs.h b/contrib/test_disk-server/structs.h
+index 7cca000034..14b180cc18 100644
+--- a/contrib/test_disk-server/structs.h
++++ b/contrib/test_disk-server/structs.h
+@@ -1,11 +1,29 @@
+ #ifndef STRUCTS_H
+ #define STRUCTS_H
+ 
+-typedef struct ServerRequest {
++#define SOURCE_TEST_DISK 1
++#define SOURCE_CHANGE_PARAMETERS 2
++
++typedef struct TestDiskPayload {
++    uint8_t disk_id;
+     uint8_t command;
++    uint32_t sector;
++    uint64_t req_target_len;
++} TestDiskPayload;
++
++typedef struct ChangeParametersPayload {
++    uint32_t read_latency_ms;
++    uint32_t write_latency_ms;
++} ChangeParametersPayload;
++
++typedef struct ServerRequest {
++    int source;
++    TestDiskPayload test_disk_payload;
++    ChangeParametersPayload change_parameters_payload;
+ } ServerRequest;
+ 
+ typedef struct ServerResponse {
++    uint8_t error_code;
+     uint32_t latency;
+ } ServerResponse;
+ 
+diff --git a/hw/scsi/test_disk.c b/hw/scsi/test_disk.c
+index 3529ce1288..37403eda0d 100644
+--- a/hw/scsi/test_disk.c
++++ b/hw/scsi/test_disk.c
+@@ -18,6 +18,7 @@
+ static const Property test_disk_properties[] = {
+     DEFINE_PROP_SIZE("size", TestDisk, size, 1 * 1024 * 1024 * 1024),
+     DEFINE_PROP_SIZE("bs", TestDisk, block_size, 512),
++    DEFINE_PROP_UINT8("disk-id", TestDisk, id, 0)
+ };
+ 
+ 
+@@ -293,7 +294,11 @@ static void test_disk_bh_routine(void* opaque) {
+ 
+     vm_stop(RUN_STATE_PAUSED); // ii. pause vm
+ 
+-    ServerRequest server_req = {.command = args->command};
++    ServerRequest server_req = {
++        .source = SOURCE_TEST_DISK,
++        .test_disk_payload.disk_id = disk->id,
++        .test_disk_payload.command = args->command
++    };
+     ServerResponse server_res;
+ 
+     qio_channel_set_blocking(QIO_CHANNEL(disk->socket), true, NULL); // iii. set socket blocking true
+diff --git a/hw/scsi/test_disk.h b/hw/scsi/test_disk.h
+index 4ef28ee37a..a2deee5318 100644
+--- a/hw/scsi/test_disk.h
++++ b/hw/scsi/test_disk.h
+@@ -11,6 +11,9 @@ OBJECT_DECLARE_SIMPLE_TYPE(TestDisk, TEST_DISK)
+ // Device
+ struct TestDisk {
+     SCSIDevice parent_scsi_dev;
++
++    uint8_t id;
++
+     QIOChannelSocket* socket;
+ 
+     uint64_t size;
 -- 
 2.52.0
 

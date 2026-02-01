@@ -1,0 +1,95 @@
+diff --git a/contrib/test_disk-server/server.cpp b/contrib/test_disk-server/server.cpp
+index 65f3c59cc8..a7a4148459 100644
+--- a/contrib/test_disk-server/server.cpp
++++ b/contrib/test_disk-server/server.cpp
+@@ -43,10 +43,14 @@ int main() {
+                 break;
+             }
+ 
+-            std::cout << std::format("Received: command = 0x{:02x}", static_cast<int>(server_req.command)) << std::endl;
++            if (server_req.source != SOURCE_TEST_DISK) {
++                continue;
++            }
++
++            std::cout << std::format("Received: id = {}, command = 0x{:02x}", server_req.test_disk_payload.disk_id, static_cast<int>(server_req.test_disk_payload.command)) << std::endl;
+ 
+             ServerResponse server_res;
+-            server_res.latency = server_req.command == 0x28 || server_req.command == 0x08 ? read_latency_ms : write_latency_ms;
++            server_res.latency = server_req.test_disk_payload.command == 0x28 || server_req.test_disk_payload.command == 0x08 ? read_latency_ms : write_latency_ms;
+ 
+             send(client_fd, &server_res, sizeof(server_res), 0);
+ 
+diff --git a/contrib/test_disk-server/structs.h b/contrib/test_disk-server/structs.h
+index 7cca000034..14b180cc18 100644
+--- a/contrib/test_disk-server/structs.h
++++ b/contrib/test_disk-server/structs.h
+@@ -1,11 +1,29 @@
+ #ifndef STRUCTS_H
+ #define STRUCTS_H
+ 
+-typedef struct ServerRequest {
++#define SOURCE_TEST_DISK 1
++#define SOURCE_CHANGE_PARAMETERS 2
++
++typedef struct TestDiskPayload {
++    uint8_t disk_id;
+     uint8_t command;
++    uint32_t sector;
++    uint64_t req_target_len;
++} TestDiskPayload;
++
++typedef struct ChangeParametersPayload {
++    uint32_t read_latency_ms;
++    uint32_t write_latency_ms;
++} ChangeParametersPayload;
++
++typedef struct ServerRequest {
++    int source;
++    TestDiskPayload test_disk_payload;
++    ChangeParametersPayload change_parameters_payload;
+ } ServerRequest;
+ 
+ typedef struct ServerResponse {
++    uint8_t error_code;
+     uint32_t latency;
+ } ServerResponse;
+ 
+diff --git a/hw/scsi/test_disk.c b/hw/scsi/test_disk.c
+index 3529ce1288..37403eda0d 100644
+--- a/hw/scsi/test_disk.c
++++ b/hw/scsi/test_disk.c
+@@ -18,6 +18,7 @@
+ static const Property test_disk_properties[] = {
+     DEFINE_PROP_SIZE("size", TestDisk, size, 1 * 1024 * 1024 * 1024),
+     DEFINE_PROP_SIZE("bs", TestDisk, block_size, 512),
++    DEFINE_PROP_UINT8("disk-id", TestDisk, id, 0)
+ };
+ 
+ 
+@@ -293,7 +294,11 @@ static void test_disk_bh_routine(void* opaque) {
+ 
+     vm_stop(RUN_STATE_PAUSED); // ii. pause vm
+ 
+-    ServerRequest server_req = {.command = args->command};
++    ServerRequest server_req = {
++        .source = SOURCE_TEST_DISK,
++        .test_disk_payload.disk_id = disk->id,
++        .test_disk_payload.command = args->command
++    };
+     ServerResponse server_res;
+ 
+     qio_channel_set_blocking(QIO_CHANNEL(disk->socket), true, NULL); // iii. set socket blocking true
+diff --git a/hw/scsi/test_disk.h b/hw/scsi/test_disk.h
+index 4ef28ee37a..a2deee5318 100644
+--- a/hw/scsi/test_disk.h
++++ b/hw/scsi/test_disk.h
+@@ -11,6 +11,9 @@ OBJECT_DECLARE_SIMPLE_TYPE(TestDisk, TEST_DISK)
+ // Device
+ struct TestDisk {
+     SCSIDevice parent_scsi_dev;
++
++    uint8_t id;
++
+     QIOChannelSocket* socket;
+ 
+     uint64_t size;
