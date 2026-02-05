@@ -1,7 +1,7 @@
-From 8ed4f2e62436a5437af099abe3bd09eb7e62a30e Mon Sep 17 00:00:00 2001
+From ea5fcc6690b3b7a0243f05b4bff9dab5dd19a2ba Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Tue, 13 Jan 2026 19:53:51 +0300
-Subject: [PATCH 01/16] [ADD] Add test scsi disk
+Subject: [PATCH 01/17] [ADD] Add test scsi disk
 
 ---
  .gitignore                  |  1 +
@@ -120,10 +120,10 @@ index 0000000000..be2f7ccbd3
 2.52.0
 
 
-From fd961d2a2a6cf2db5928ec5ffb84910e0ca19bf5 Mon Sep 17 00:00:00 2001
+From 9ed9332e5ab35eddcb3825badeb836191db9ac4f Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Thu, 15 Jan 2026 18:12:16 +0300
-Subject: [PATCH 02/16] [ADD] Add basic request handling
+Subject: [PATCH 02/17] [ADD] Add basic request handling
 
 ---
  hw/scsi/test_disk.c         | 104 +++++++++++++++++++++++++++++++++++-
@@ -276,10 +276,10 @@ index be2f7ccbd3..ac9e278372 100644
 2.52.0
 
 
-From f8468c360dcf2353d2cffd0712a04dff520b743d Mon Sep 17 00:00:00 2001
+From ebeb0d1267a62249298a6a41942ead9c898b6d0d Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Tue, 20 Jan 2026 20:24:58 +0300
-Subject: [PATCH 03/16] [ADD] Add socket connection with server
+Subject: [PATCH 03/17] [ADD] Add socket connection with server
 
 ---
  hw/scsi/test_disk.c         | 72 +++++++++++++++++++++++++------------
@@ -454,10 +454,10 @@ index ac9e278372..c6a07db5dd 100644
 2.52.0
 
 
-From a36489ccb7e6f08b894cebbfb99bc850d81e1bdf Mon Sep 17 00:00:00 2001
+From d69b0f375636309f538260f635a387480bb68456 Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Wed, 21 Jan 2026 20:00:40 +0300
-Subject: [PATCH 04/16] [ADD] Add read command handler with delay
+Subject: [PATCH 04/17] [ADD] Add read command handler with delay
 
 ---
  hw/scsi/test_disk.c | 69 ++++++++++++++++++++++++++++++++++++++++++---
@@ -589,10 +589,10 @@ index 01481301fa..a4bf98bf5f 100644
 2.52.0
 
 
-From f58f4b282e6806f756b1e43bb69d69df0c651c0e Mon Sep 17 00:00:00 2001
+From 2cc233755b9e5343fc3fcbf6a7f580da0e8c7a93 Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Thu, 22 Jan 2026 18:37:00 +0300
-Subject: [PATCH 05/16] [ADD] Add ability to set constants
+Subject: [PATCH 05/17] [ADD] Add ability to set constants
 
 ---
  hw/scsi/test_disk.c         | 47 +++++++++++++++++++++++++++++--------
@@ -722,10 +722,10 @@ index c6a07db5dd..a86908d965 100644
 2.52.0
 
 
-From b7512e6397711483884d3df5567aa935a3ad5f7a Mon Sep 17 00:00:00 2001
+From f38ab8d2ade72df4b97cc7c2733e9bb5f4ba70fc Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Fri, 23 Jan 2026 01:28:47 +0300
-Subject: [PATCH 06/16] [REF] Reafactor + async socket connection and
+Subject: [PATCH 06/17] [REF] Reafactor + async socket connection and
  reconnection mechanism
 
 ---
@@ -1218,10 +1218,10 @@ index a86908d965..568f975961 100644
 2.52.0
 
 
-From 0ed855e8696ea5cb6ace84e35c3054f791df24bd Mon Sep 17 00:00:00 2001
+From 49795e6b25b7877029e195cd0b60583cdd25b1d5 Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Fri, 23 Jan 2026 12:55:40 +0300
-Subject: [PATCH 07/16] [REF] Minor refactoring
+Subject: [PATCH 07/17] [REF] Minor refactoring
 
 ---
  hw/scsi/test_disk.c | 23 +++++------------------
@@ -1315,10 +1315,10 @@ index 568f975961..91aecea9b1 100644
 2.52.0
 
 
-From 15c9875a791b16b825b62fb23e93dca231674f48 Mon Sep 17 00:00:00 2001
+From d4ebcfdd6e208fb9ffc471bd321f1d10fd9190f3 Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Fri, 23 Jan 2026 16:12:43 +0300
-Subject: [PATCH 08/16] [ADD] Add socket disconnection watcher
+Subject: [PATCH 08/17] [ADD] Add socket disconnection watcher
 
 ---
  hw/scsi/test_disk.c | 47 +++++++++++++++++++++++++++++++++++++++++++--
@@ -1429,10 +1429,10 @@ index 91aecea9b1..1a9c70eacf 100644
 2.52.0
 
 
-From b699116cbf9887b60fa7b93fcafad283a17c90f8 Mon Sep 17 00:00:00 2001
+From fa061d030587aec4ba62be1e61ba3ed123bf4fdc Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Sun, 25 Jan 2026 13:14:46 +0300
-Subject: [PATCH 09/16] [REF] Move server to contrib folder
+Subject: [PATCH 09/17] [REF] Move server to contrib folder
 
 ---
  .gitignore                              |  2 +-
@@ -1557,10 +1557,10 @@ index 0000000000..73808f620f
 2.52.0
 
 
-From 685ec0268fb250944cb281ec4466c78030e10270 Mon Sep 17 00:00:00 2001
+From 24af94f667d7eec3af9a92725c51bb535693e00c Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Sun, 25 Jan 2026 19:33:53 +0300
-Subject: [PATCH 10/16] [UPD] Update server
+Subject: [PATCH 10/17] [UPD] Update server
 
 ---
  contrib/test_disk-server/server.cpp | 35 +++++++++++++----------------
@@ -1654,10 +1654,10 @@ index 73808f620f..7cca000034 100644
 2.52.0
 
 
-From 42e627b92da157e403a22b35a8243d041c2c8516 Mon Sep 17 00:00:00 2001
+From 36e96716d089527a1a8d4b59f0bac9bccaa336c4 Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Sun, 25 Jan 2026 19:36:53 +0300
-Subject: [PATCH 11/16] [UPD] Change logic of acquiring latency value from
+Subject: [PATCH 11/17] [UPD] Change logic of acquiring latency value from
  server
 
 ---
@@ -1813,10 +1813,10 @@ index 1a9c70eacf..acc1285d62 100644
 2.52.0
 
 
-From 10dc85980324382e51a50546f979c730080d8ab7 Mon Sep 17 00:00:00 2001
+From b650afa996995ce30eeabbd5c66199d7b9e1b878 Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Tue, 27 Jan 2026 15:11:41 +0300
-Subject: [PATCH 12/16] [ADD] Add WRITE command handling
+Subject: [PATCH 12/17] [ADD] Add WRITE command handling
 
 ---
  hw/scsi/test_disk.c | 19 +++++++++++++------
@@ -1913,10 +1913,10 @@ index 4124631d23..216d38a394 100644
 2.52.0
 
 
-From 1362632ba169dd5d2f33c7e2ac5b14f12dc54590 Mon Sep 17 00:00:00 2001
+From cf174a08c22b80cb2285a229eaeb73e814001daa Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Tue, 27 Jan 2026 15:12:39 +0300
-Subject: [PATCH 13/16] [ADD] Server: Add WRITE latency parameter
+Subject: [PATCH 13/17] [ADD] Server: Add WRITE latency parameter
 
 ---
  contrib/test_disk-server/server.cpp | 13 +++++++------
@@ -1966,10 +1966,10 @@ index dca2d12727..65f3c59cc8 100644
 2.52.0
 
 
-From 72a2b74005a8636af694441426652e534d9e976d Mon Sep 17 00:00:00 2001
+From 7902903a4740af9983fc57b33e8cb56acf4ae258 Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Fri, 30 Jan 2026 20:58:46 +0300
-Subject: [PATCH 14/16] [FIX] Remove unit_attention and MEDIUM_CHANGE call
+Subject: [PATCH 14/17] [FIX] Remove unit_attention and MEDIUM_CHANGE call
  causing SEGFAULT
 
 ---
@@ -2069,10 +2069,10 @@ index acc1285d62..4ef28ee37a 100644
 2.52.0
 
 
-From f528365de7f75121cbc5e8c4452f4126885bea2f Mon Sep 17 00:00:00 2001
+From 84249f7acf2bc6c362d45173406e1d42a675f976 Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Sun, 1 Feb 2026 15:52:46 +0300
-Subject: [PATCH 15/16] [REF] Use vm_stop() to freeze virtual machine
+Subject: [PATCH 15/17] [REF] Use vm_stop() to freeze virtual machine
 
 ---
  hw/scsi/test_disk.c | 144 +++++++++++++++++++++++++++-----------------
@@ -2275,10 +2275,10 @@ index 6ab9300711..3529ce1288 100644
 2.52.0
 
 
-From e7709e1f7ddee6aa92f19bd7e9f58b96f79a9471 Mon Sep 17 00:00:00 2001
+From 17d3ff11762e281e84ae9331599c93f82a5ea0ff Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Sun, 1 Feb 2026 16:27:56 +0300
-Subject: [PATCH 16/16] [UPD] Extend ServerRequest and ServerResponse structs
+Subject: [PATCH 16/17] [UPD] Extend ServerRequest and ServerResponse structs
 
 ---
  contrib/test_disk-server/server.cpp |  8 ++++++--
@@ -2382,6 +2382,332 @@ index 4ef28ee37a..a2deee5318 100644
      QIOChannelSocket* socket;
  
      uint64_t size;
+-- 
+2.52.0
+
+
+From a8edb01c447aab2f8878c9165edf6023898cc8d5 Mon Sep 17 00:00:00 2001
+From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
+Date: Thu, 5 Feb 2026 19:15:49 +0300
+Subject: [PATCH 17/17] [ADD] Improve server logic and create a toolkit
+
+---
+ contrib/test_disk-server/CMakeLists.txt       |  21 +++
+ .../test_disk-server/change_parameters.cpp    |   5 +
+ contrib/test_disk-server/server.cpp           |  77 ++++------
+ .../server_toolkit/server_toolkit.cpp         | 132 ++++++++++++++++++
+ .../server_toolkit/server_toolkit.h           |  28 ++++
+ 5 files changed, 210 insertions(+), 53 deletions(-)
+ create mode 100644 contrib/test_disk-server/change_parameters.cpp
+ create mode 100644 contrib/test_disk-server/server_toolkit/server_toolkit.cpp
+ create mode 100644 contrib/test_disk-server/server_toolkit/server_toolkit.h
+
+diff --git a/contrib/test_disk-server/CMakeLists.txt b/contrib/test_disk-server/CMakeLists.txt
+index 271c60b05c..3ce451587f 100644
+--- a/contrib/test_disk-server/CMakeLists.txt
++++ b/contrib/test_disk-server/CMakeLists.txt
+@@ -8,4 +8,25 @@ add_executable(${PROJECT_NAME})
+ target_sources(${PROJECT_NAME}
+     PRIVATE
+         server.cpp
++        server_toolkit/server_toolkit.cpp
++)
++
++target_include_directories(${PROJECT_NAME}
++    PUBLIC
++        ${PROJECT_SOURCE_DIR}
++)
++
++# ==============================================================
++
++add_executable(${PROJECT_NAME}_change_parameters)
++
++target_sources(${PROJECT_NAME}_change_parameters
++    PRIVATE
++        change_parameters.cpp
++        server_toolkit/server_toolkit.cpp
++)
++
++target_include_directories(${PROJECT_NAME}
++        PUBLIC
++        ${PROJECT_SOURCE_DIR}
+ )
+diff --git a/contrib/test_disk-server/change_parameters.cpp b/contrib/test_disk-server/change_parameters.cpp
+new file mode 100644
+index 0000000000..a6ba9efd1d
+--- /dev/null
++++ b/contrib/test_disk-server/change_parameters.cpp
+@@ -0,0 +1,5 @@
++#include "server_toolkit/server_toolkit.h"
++
++int main() {
++    change_server_parameters("127.0.0.1", 31234, 10, 40);
++}
+\ No newline at end of file
+diff --git a/contrib/test_disk-server/server.cpp b/contrib/test_disk-server/server.cpp
+index a7a4148459..2e095a0389 100644
+--- a/contrib/test_disk-server/server.cpp
++++ b/contrib/test_disk-server/server.cpp
+@@ -1,63 +1,34 @@
+-#include <arpa/inet.h>
+-#include <cstring>
+-#include <format>
+-#include <iomanip>
+-#include <iostream>
+-#include <netinet/in.h>
+-#include <string>
+-#include <bits/this_thread_sleep.h>
+-#include <sys/socket.h>
+-
+-#include "structs.h"
+-
++#include "server_toolkit/server_toolkit.h"
+ 
+ int main() {
+-    sockaddr_in addr = {
+-        .sin_family = AF_INET,
+-        .sin_port = htons(31234),
+-        .sin_zero = 0
+-    };
+-
+-    inet_aton("127.0.0.1", &addr.sin_addr);
+-
+-    int fd = socket(AF_INET, SOCK_STREAM, 0);
+-
+-    int opt = 1;
+-    setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
+-
+-    bind(fd, reinterpret_cast<sockaddr*>(&addr), sizeof(addr));
+-
+-    listen(fd, 1);
++    int server_fd = create_server("127.0.0.1", 31234);
++    if (server_fd == -1) {
++        return -1;
++    }
+ 
+-    uint32_t read_latency_ms = 5;
+-    uint32_t write_latency_ms = 5;
++    std::atomic<uint32_t> read_latency_ms = 34;
++    std::atomic<uint32_t> write_latency_ms = 7;
+ 
+-    while (true) {
+-        int client_fd = accept(fd, nullptr, nullptr);
+-        std::cout << std::format("---- New connection ---- ") << std::endl;
++    run_server(server_fd, [&](const ServerRequest& server_req) {
++        ServerResponse server_res{};
+ 
+-        while (true) {
+-            ServerRequest server_req;
+-            ssize_t bytes = recv(client_fd, &server_req, sizeof(server_req), 0);
+-            if (bytes <= 0) {
++        switch (server_req.source) {
++            case SOURCE_CHANGE_PARAMETERS:
++                read_latency_ms = server_req.change_parameters_payload.read_latency_ms;
++                write_latency_ms = server_req.change_parameters_payload.write_latency_ms;
+                 break;
+-            }
++            case SOURCE_TEST_DISK:
++                std::cout << std::format("Command: 0x{:02x}", server_req.test_disk_payload.command) << std::endl;
+ 
+-            if (server_req.source != SOURCE_TEST_DISK) {
+-                continue;
+-            }
+-
+-            std::cout << std::format("Received: id = {}, command = 0x{:02x}", server_req.test_disk_payload.disk_id, static_cast<int>(server_req.test_disk_payload.command)) << std::endl;
+-
+-            ServerResponse server_res;
+-            server_res.latency = server_req.test_disk_payload.command == 0x28 || server_req.test_disk_payload.command == 0x08 ? read_latency_ms : write_latency_ms;
+-
+-            send(client_fd, &server_res, sizeof(server_res), 0);
++                server_res.latency =
++                    server_req.test_disk_payload.command == 0x28 || server_req.test_disk_payload.command == 0x08
++                    ? read_latency_ms
++                    : write_latency_ms;
++                break;
++        }
+ 
+-            // std::this_thread::sleep_for(std::chrono::milliseconds(50));
++        // std::this_thread::sleep_for(std::chrono::milliseconds(150));
+ 
+-            std::cout << "Sent: latency = " << server_res.latency << std::endl;
+-        }
+-        std::cout << "---- Connection closed ----" << std::endl;
+-    }
++        return server_res;
++    });
+ }
+diff --git a/contrib/test_disk-server/server_toolkit/server_toolkit.cpp b/contrib/test_disk-server/server_toolkit/server_toolkit.cpp
+new file mode 100644
+index 0000000000..a58ce334ee
+--- /dev/null
++++ b/contrib/test_disk-server/server_toolkit/server_toolkit.cpp
+@@ -0,0 +1,132 @@
++#include "server_toolkit.h"
++
++int create_server(const std::string& ip, uint16_t port) {
++    sockaddr_in addr = {
++        .sin_family = AF_INET,
++        .sin_port = htons(port),
++        .sin_zero = 0
++    };
++
++    if (inet_aton(ip.c_str(), &addr.sin_addr) == 0) {
++        std::cerr << "Invalid address" << std::endl;
++        return -1;
++    }
++
++    int fd = socket(AF_INET, SOCK_STREAM, 0);
++    if (fd == -1) {
++        std::cerr << "Failed to create socket: " << strerror(errno) << std::endl;
++        return -1;
++    }
++
++    int opt = 1;
++    if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) == -1) {
++        close(fd);
++        std::cerr << "Unable to set SO_REUSEADDR option: " << strerror(errno) << std::endl;
++        return -1;
++    }
++
++    if (bind(fd, reinterpret_cast<sockaddr*>(&addr), sizeof(addr)) == -1) {
++        close(fd);
++        std::cerr << "Unable to bind socket: " << strerror(errno) << std::endl;
++        return -1;
++    }
++
++    return fd;
++}
++
++// ============================================================================
++
++int run_server(int server_fd, const Callback& callback) {
++    if (listen(server_fd, 5) == -1) {
++        close(server_fd);
++        std::cerr << "Unable to listen server socket: " << strerror(errno) << std::endl;
++        return -1;
++    }
++
++    while (true) {
++        int client_fd = accept(server_fd, nullptr, nullptr);
++        if (client_fd == -1) {
++            std::cerr << "Unable to accept client" << std::endl;
++            continue;
++        }
++
++        std::thread([client_fd, callback]() {
++            client_routine(client_fd, callback);
++        }).detach();
++    }
++
++    return 0;
++}
++
++// ============================================================================
++
++void client_routine(int client_fd, const Callback& callback) {
++    std::cout << "---- New connection ---- " << std::endl;
++
++    while (true) {
++        ServerRequest server_req;
++        ssize_t bytes = recv(client_fd, &server_req, sizeof(server_req), 0);
++        if (bytes <= 0) {
++            break;
++        }
++
++        ServerResponse server_res = callback(server_req);
++
++        if (send(client_fd, &server_res, sizeof(server_res), 0) == -1) {
++            std::cerr << "Unable to send response to client socket: " << strerror(errno) << std::endl;
++        } else {
++            std::cout << "Sent: latency = " << server_res.latency << std::endl;
++        }
++    }
++
++    std::cout << "---- Connection closed ----" << std::endl;
++
++    close(client_fd);
++}
++
++// ============================================================================
++
++int change_server_parameters(const std::string& ip, uint16_t port, uint32_t read_latency_ms, uint32_t write_latency_ms) {
++    // server address
++    sockaddr_in addr = {
++        .sin_family = AF_INET,
++        .sin_port = htons(port),
++        .sin_zero = 0
++    };
++
++    if (inet_aton(ip.c_str(), &addr.sin_addr) == 0) {
++        std::cerr << "Invalid address" << std::endl;
++        return -1;
++    }
++
++    // connect to server
++    int fd = socket(AF_INET, SOCK_STREAM, 0);
++    if (fd == -1) {
++        std::cerr << "Failed to create socket: " << strerror(errno) << std::endl;
++        return -1;
++    }
++
++    if (connect(fd, reinterpret_cast<sockaddr*>(&addr), sizeof(addr)) == -1) {
++        close(fd);
++        std::cerr << "Unable to connect to server: " << strerror(errno) << std::endl;
++        return -1;
++    }
++
++    // send request
++    ServerRequest server_req = {
++        .source = SOURCE_CHANGE_PARAMETERS,
++        .change_parameters_payload = {
++            .read_latency_ms = read_latency_ms,
++            .write_latency_ms = write_latency_ms,
++        }
++    };
++
++    if (send(fd, &server_req, sizeof(server_req), 0) == -1) {
++        std::cerr << "Unable to send request to client socket: " << strerror(errno) << std::endl;
++    } else {
++        std::cout << "Sent: read_latency_ms = " << read_latency_ms << ", write_latency_ms = " << write_latency_ms << std::endl;
++    }
++
++    close(fd);
++    return 0;
++}
+diff --git a/contrib/test_disk-server/server_toolkit/server_toolkit.h b/contrib/test_disk-server/server_toolkit/server_toolkit.h
+new file mode 100644
+index 0000000000..6d9845f770
+--- /dev/null
++++ b/contrib/test_disk-server/server_toolkit/server_toolkit.h
+@@ -0,0 +1,28 @@
++#ifndef SERVER_H
++#define SERVER_H
++
++#include <arpa/inet.h>
++#include <cstring>
++#include <format>
++#include <functional>
++#include <iomanip>
++#include <iostream>
++#include <netinet/in.h>
++#include <string>
++#include <unistd.h>
++#include <bits/this_thread_sleep.h>
++#include <sys/socket.h>
++#include <thread>
++
++#include "structs.h"
++
++int create_server(const std::string& ip, uint16_t port);
++
++using Callback = std::function<ServerResponse(ServerRequest)>;
++int run_server(int server_fd, const Callback& callback);
++
++void client_routine(int client_fd, const Callback& callback);
++
++int change_server_parameters(const std::string& ip, uint16_t port, uint32_t read_latency_ms, uint32_t write_latency_ms);
++
++#endif //SERVER_H
 -- 
 2.52.0
 
