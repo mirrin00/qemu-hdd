@@ -1,0 +1,34 @@
+diff --git a/contrib/test_disk-server/change_parameters.cpp b/contrib/test_disk-server/change_parameters.cpp
+index a6ba9efd1d..3cefe8a805 100644
+--- a/contrib/test_disk-server/change_parameters.cpp
++++ b/contrib/test_disk-server/change_parameters.cpp
+@@ -1,5 +1,14 @@
++#include <iostream>
++
+ #include "server_toolkit/server_toolkit.h"
+ 
+ int main() {
+-    change_server_parameters("127.0.0.1", 31234, 10, 40);
++    uint32_t read_latency_ms, write_latency_ms;
++
++    std::cout << "Read latency: ";
++    std::cin >> read_latency_ms;
++    std::cout << "Write latency: ";
++    std::cin >> write_latency_ms;
++
++    change_server_parameters("127.0.0.1", 31234, read_latency_ms, write_latency_ms);
+ }
+\ No newline at end of file
+diff --git a/contrib/test_disk-server/server.cpp b/contrib/test_disk-server/server.cpp
+index 2e095a0389..3f703bd4f0 100644
+--- a/contrib/test_disk-server/server.cpp
++++ b/contrib/test_disk-server/server.cpp
+@@ -1,3 +1,8 @@
++#include <format>
++#include <atomic>
++#include <iostream>
++#include <thread>
++
+ #include "server_toolkit/server_toolkit.h"
+ 
+ int main() {
