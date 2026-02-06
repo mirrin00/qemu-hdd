@@ -1,0 +1,214 @@
+diff --git a/contrib/test_disk-server/CMakeLists.txt b/contrib/test_disk-server/CMakeLists.txt
+index 3ce451587f..2b8b9e6544 100644
+--- a/contrib/test_disk-server/CMakeLists.txt
++++ b/contrib/test_disk-server/CMakeLists.txt
+@@ -3,6 +3,11 @@ project(qemu_server LANGUAGES CXX)
+ 
+ set(CMAKE_CXX_STANDARD 20)
+ 
++include(cmake/cpm.cmake)
++include(cmake/external.cmake)
++
++# ==============================================================
++
+ add_executable(${PROJECT_NAME})
+ 
+ target_sources(${PROJECT_NAME}
+@@ -26,7 +31,25 @@ target_sources(${PROJECT_NAME}_change_parameters
+         server_toolkit/server_toolkit.cpp
+ )
+ 
+-target_include_directories(${PROJECT_NAME}
+-        PUBLIC
++target_include_directories(${PROJECT_NAME}_change_parameters
++    PUBLIC
++        ${PROJECT_SOURCE_DIR}
++)
++
++# ==============================================================
++
++set(BINDINGS_PACKAGE_NAME server_toolkit_py)
++
++pybind11_add_module(${BINDINGS_PACKAGE_NAME}
++    server_toolkit/bindings.cpp
++    server_toolkit/server_toolkit.cpp
++)
++
++target_include_directories(${BINDINGS_PACKAGE_NAME}
++    PUBLIC
+         ${PROJECT_SOURCE_DIR}
+ )
++
++target_link_libraries(${BINDINGS_PACKAGE_NAME} PRIVATE pybind11::module)
++
++target_compile_definitions(${BINDINGS_PACKAGE_NAME} PRIVATE PYTHON_BINDINGS)
+\ No newline at end of file
+diff --git a/contrib/test_disk-server/cmake/cpm.cmake b/contrib/test_disk-server/cmake/cpm.cmake
+new file mode 100644
+index 0000000000..d6aa096c3d
+--- /dev/null
++++ b/contrib/test_disk-server/cmake/cpm.cmake
+@@ -0,0 +1,10 @@
++set(CPM_DOWNLOAD_VERSION 0.42.0)
++set(CPM_DOWNLOAD_LOCATION "${CMAKE_BINARY_DIR}/cmake/cpm_${CPM_DOWNLOAD_VERSION}.cmake")
++
++file(
++        DOWNLOAD
++        https://github.com/cpm-cmake/CPM.cmake/releases/download/v${CPM_DOWNLOAD_VERSION}/CPM.cmake
++        ${CPM_DOWNLOAD_LOCATION}
++)
++
++include(${CPM_DOWNLOAD_LOCATION})
+\ No newline at end of file
+diff --git a/contrib/test_disk-server/cmake/external.cmake b/contrib/test_disk-server/cmake/external.cmake
+new file mode 100644
+index 0000000000..bbd1ca9331
+--- /dev/null
++++ b/contrib/test_disk-server/cmake/external.cmake
+@@ -0,0 +1,5 @@
++CPMAddPackage(
++        NAME pybind11
++        GIT_REPOSITORY https://github.com/pybind/pybind11.git
++        VERSION 3.0.1
++)
+\ No newline at end of file
+diff --git a/contrib/test_disk-server/server_toolkit/bindings.cpp b/contrib/test_disk-server/server_toolkit/bindings.cpp
+new file mode 100644
+index 0000000000..29e04abc59
+--- /dev/null
++++ b/contrib/test_disk-server/server_toolkit/bindings.cpp
+@@ -0,0 +1,45 @@
++#include "pybind11/pybind11.h"
++#include "pybind11/stl.h"
++#include "pybind11/functional.h"
++
++#include "structs.h"
++#include "server_toolkit.h"
++
++namespace py = pybind11;
++using namespace pybind11::literals;
++
++PYBIND11_MODULE(server_toolkit_py, m) {
++    // Constants
++    m.attr("SOURCE_TEST_DISK") = SOURCE_TEST_DISK;
++    m.attr("SOURCE_CHANGE_PARAMETERS") = SOURCE_CHANGE_PARAMETERS;
++
++    // Server Request
++    py::class_<TestDiskPayload>(m, "TestDiskPayload")
++            .def(py::init<>())
++            .def_readwrite("disk_id", &TestDiskPayload::disk_id)
++            .def_readwrite("command", &TestDiskPayload::command)
++            .def_readwrite("sector", &TestDiskPayload::sector)
++            .def_readwrite("req_target_len", &TestDiskPayload::req_target_len);
++
++    py::class_<ChangeParametersPayload>(m, "ChangeParametersPayload")
++            .def(py::init<>())
++            .def_readwrite("read_latency_ms", &ChangeParametersPayload::read_latency_ms)
++            .def_readwrite("write_latency_ms", &ChangeParametersPayload::write_latency_ms);
++
++    py::class_<ServerRequest>(m, "ServerRequest")
++            .def(py::init<>())
++            .def_readwrite("source", &ServerRequest::source)
++            .def_readwrite("test_disk_payload", &ServerRequest::test_disk_payload)
++            .def_readwrite("change_parameters_payload", &ServerRequest::change_parameters_payload);
++
++    // Server Response
++    py::class_<ServerResponse>(m, "ServerResponse")
++            .def(py::init<>())
++            .def_readwrite("error_code", &ServerResponse::error_code)
++            .def_readwrite("latency", &ServerResponse::latency);
++
++    // Functions
++    m.def("create_server", &create_server, "ip"_a, "port"_a);
++    m.def("run_server", &run_server, "server_fd"_a, "callback"_a, py::call_guard<py::gil_scoped_release>());
++    m.def("change_server_parameters", &change_server_parameters, "ip"_a, "port"_a, "read_latency_ms"_a, "write_latency_ms"_a);
++}
+diff --git a/contrib/test_disk-server/server_toolkit/server_toolkit.cpp b/contrib/test_disk-server/server_toolkit/server_toolkit.cpp
+index a58ce334ee..74e2822631 100644
+--- a/contrib/test_disk-server/server_toolkit/server_toolkit.cpp
++++ b/contrib/test_disk-server/server_toolkit/server_toolkit.cpp
+@@ -1,3 +1,16 @@
++#include <unistd.h>
++#include <sys/socket.h>
++#include <thread>
++#include <arpa/inet.h>
++#include <cstring>
++#include <format>
++#include <iostream>
++#include <netinet/in.h>
++
++#ifdef PYTHON_BINDINGS
++#include "pybind11/pybind11.h"
++#endif
++
+ #include "server_toolkit.h"
+ 
+ int create_server(const std::string& ip, uint16_t port) {
+@@ -51,7 +64,7 @@ int run_server(int server_fd, const Callback& callback) {
+         }
+ 
+         std::thread([client_fd, callback]() {
+-            client_routine(client_fd, callback);
++            _client_routine(client_fd, callback);
+         }).detach();
+     }
+ 
+@@ -60,7 +73,7 @@ int run_server(int server_fd, const Callback& callback) {
+ 
+ // ============================================================================
+ 
+-void client_routine(int client_fd, const Callback& callback) {
++void _client_routine(int client_fd, const Callback& callback) {
+     std::cout << "---- New connection ---- " << std::endl;
+ 
+     while (true) {
+@@ -70,7 +83,15 @@ void client_routine(int client_fd, const Callback& callback) {
+             break;
+         }
+ 
+-        ServerResponse server_res = callback(server_req);
++        ServerResponse server_res;
++#ifdef PYTHON_BINDINGS
++        {
++            pybind11::gil_scoped_acquire acquire;
++            server_res = callback(server_req);
++        }
++#else
++        server_res = callback(server_req);
++#endif
+ 
+         if (send(client_fd, &server_res, sizeof(server_res), 0) == -1) {
+             std::cerr << "Unable to send response to client socket: " << strerror(errno) << std::endl;
+diff --git a/contrib/test_disk-server/server_toolkit/server_toolkit.h b/contrib/test_disk-server/server_toolkit/server_toolkit.h
+index 6d9845f770..04f9cf6952 100644
+--- a/contrib/test_disk-server/server_toolkit/server_toolkit.h
++++ b/contrib/test_disk-server/server_toolkit/server_toolkit.h
+@@ -1,18 +1,10 @@
+ #ifndef SERVER_H
+ #define SERVER_H
+ 
+-#include <arpa/inet.h>
+-#include <cstring>
+-#include <format>
+ #include <functional>
+ #include <iomanip>
+-#include <iostream>
+-#include <netinet/in.h>
+ #include <string>
+-#include <unistd.h>
+-#include <bits/this_thread_sleep.h>
+-#include <sys/socket.h>
+-#include <thread>
++#include <cstdint>
+ 
+ #include "structs.h"
+ 
+@@ -21,7 +13,7 @@ int create_server(const std::string& ip, uint16_t port);
+ using Callback = std::function<ServerResponse(ServerRequest)>;
+ int run_server(int server_fd, const Callback& callback);
+ 
+-void client_routine(int client_fd, const Callback& callback);
++void _client_routine(int client_fd, const Callback& callback);
+ 
+ int change_server_parameters(const std::string& ip, uint16_t port, uint32_t read_latency_ms, uint32_t write_latency_ms);
+ 
