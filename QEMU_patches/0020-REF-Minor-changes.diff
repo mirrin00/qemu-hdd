@@ -1,0 +1,87 @@
+diff --git a/hw/scsi/test_disk.c b/hw/scsi/test_disk.c
+index 37403eda0d..0c80ca6201 100644
+--- a/hw/scsi/test_disk.c
++++ b/hw/scsi/test_disk.c
+@@ -94,7 +94,7 @@ static int32_t test_disk_send_command(SCSIRequest* scsi_req, uint8_t* request_bu
+         return 0;
+     }
+ 
+-    if (!disk->socket) {
++    if (!disk->socket || disk->connecting) {
+         scsi_req_build_sense(scsi_req, SENSE_CODE(NOT_READY));
+         scsi_req_complete(scsi_req, CHECK_CONDITION);
+         return 0;
+@@ -265,15 +265,16 @@ static gboolean test_disk_socket_watch(QIOChannel* ioc, GIOCondition condition,
+     }
+ 
+     if (closed) {
+-        printf("[SOCKET]: disconnected\n");
+-
+         if (disk->socket) {
++            printf("[SOCKET]: disconnected\n");
++
+             object_unref(OBJECT(disk->socket));
+             disk->socket = NULL;
++
++            timer_mod(disk->socket_connect_timer, qemu_clock_get_ms(QEMU_CLOCK_REALTIME) + 1000);
+         }
+ 
+         disk->socket_watcher_tag = 0;
+-        timer_mod(disk->socket_connect_timer, qemu_clock_get_ms(QEMU_CLOCK_REALTIME) + 1000);
+         return FALSE;
+     }
+ 
+@@ -329,10 +330,12 @@ static void test_disk_bh_routine(void* opaque) {
+     if (socket_alive) {
+         disk->socket_watcher_tag = qio_channel_add_watch(QIO_CHANNEL(disk->socket), G_IO_IN | G_IO_HUP | G_IO_ERR, test_disk_socket_watch, disk, NULL); // i. add watcher
+     } else {
++        printf("[SOCKET]: disconnected\n");
++
+         object_unref(OBJECT(disk->socket));
+         disk->socket = NULL;
+ 
+-        timer_mod(disk->socket_connect_timer, qemu_clock_get_ms(QEMU_CLOCK_REALTIME) + 5000);
++        timer_mod(disk->socket_connect_timer, qemu_clock_get_ms(QEMU_CLOCK_REALTIME) + 1000);
+ 
+         scsi_req_build_sense(scsi_req, SENSE_CODE(NOT_READY));
+         scsi_req_complete(scsi_req, CHECK_CONDITION);
+@@ -344,7 +347,7 @@ static void test_disk_bh_routine(void* opaque) {
+     }
+ 
+     disk_req->response_buf_len = args->req_target_len;
+-    disk_req->timer = timer_new_ms(QEMU_CLOCK_VIRTUAL, test_disk_io_callback, disk_req);
++
+     timer_mod(disk_req->timer, qemu_clock_get_ms(QEMU_CLOCK_VIRTUAL) + latency_ms);
+ 
+     scsi_req_unref(scsi_req);
+@@ -356,9 +359,6 @@ static void test_disk_io_callback(void* opaque) {
+ 
+     memset(req->response_buf, 0, req->response_buf_len);
+     scsi_req_data(&req->parent_scsi_req, req->response_buf_len);
+-
+-    timer_free(req->timer);
+-    req->timer = NULL;
+ }
+ 
+ 
+@@ -371,6 +371,8 @@ static SCSIRequest* test_disk_alloc_req(SCSIDevice* scsi_dev, uint32_t tag, uint
+ 
+     disk_req->response_buf = g_malloc0(MAX_XFER_SIZE);
+ 
++    disk_req->timer = timer_new_ms(QEMU_CLOCK_VIRTUAL, test_disk_io_callback, disk_req);
++
+     return scsi_req;
+ }
+ 
+@@ -381,6 +383,11 @@ static void test_disk_free_req(SCSIRequest* scsi_req) {
+         g_free(disk_req->response_buf);
+         disk_req->response_buf = NULL;
+     }
++
++    if (disk_req->timer) {
++        timer_free(disk_req->timer);
++        disk_req->timer = NULL;
++    }
+ }
+ 
+ static int test_disk_parse_cdb(SCSIDevice* scsi_dev, SCSICommand* cmd, uint8_t* request_buf, size_t request_buf_len, void* hba_private) {
