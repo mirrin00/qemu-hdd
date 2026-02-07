@@ -1,7 +1,7 @@
 From ea5fcc6690b3b7a0243f05b4bff9dab5dd19a2ba Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Tue, 13 Jan 2026 19:53:51 +0300
-Subject: [PATCH 01/20] [ADD] Add test scsi disk
+Subject: [PATCH 01/21] [ADD] Add test scsi disk
 
 ---
  .gitignore                  |  1 +
@@ -123,7 +123,7 @@ index 0000000000..be2f7ccbd3
 From 9ed9332e5ab35eddcb3825badeb836191db9ac4f Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Thu, 15 Jan 2026 18:12:16 +0300
-Subject: [PATCH 02/20] [ADD] Add basic request handling
+Subject: [PATCH 02/21] [ADD] Add basic request handling
 
 ---
  hw/scsi/test_disk.c         | 104 +++++++++++++++++++++++++++++++++++-
@@ -279,7 +279,7 @@ index be2f7ccbd3..ac9e278372 100644
 From ebeb0d1267a62249298a6a41942ead9c898b6d0d Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Tue, 20 Jan 2026 20:24:58 +0300
-Subject: [PATCH 03/20] [ADD] Add socket connection with server
+Subject: [PATCH 03/21] [ADD] Add socket connection with server
 
 ---
  hw/scsi/test_disk.c         | 72 +++++++++++++++++++++++++------------
@@ -457,7 +457,7 @@ index ac9e278372..c6a07db5dd 100644
 From d69b0f375636309f538260f635a387480bb68456 Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Wed, 21 Jan 2026 20:00:40 +0300
-Subject: [PATCH 04/20] [ADD] Add read command handler with delay
+Subject: [PATCH 04/21] [ADD] Add read command handler with delay
 
 ---
  hw/scsi/test_disk.c | 69 ++++++++++++++++++++++++++++++++++++++++++---
@@ -592,7 +592,7 @@ index 01481301fa..a4bf98bf5f 100644
 From 2cc233755b9e5343fc3fcbf6a7f580da0e8c7a93 Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Thu, 22 Jan 2026 18:37:00 +0300
-Subject: [PATCH 05/20] [ADD] Add ability to set constants
+Subject: [PATCH 05/21] [ADD] Add ability to set constants
 
 ---
  hw/scsi/test_disk.c         | 47 +++++++++++++++++++++++++++++--------
@@ -725,7 +725,7 @@ index c6a07db5dd..a86908d965 100644
 From f38ab8d2ade72df4b97cc7c2733e9bb5f4ba70fc Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Fri, 23 Jan 2026 01:28:47 +0300
-Subject: [PATCH 06/20] [REF] Reafactor + async socket connection and
+Subject: [PATCH 06/21] [REF] Reafactor + async socket connection and
  reconnection mechanism
 
 ---
@@ -1221,7 +1221,7 @@ index a86908d965..568f975961 100644
 From 49795e6b25b7877029e195cd0b60583cdd25b1d5 Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Fri, 23 Jan 2026 12:55:40 +0300
-Subject: [PATCH 07/20] [REF] Minor refactoring
+Subject: [PATCH 07/21] [REF] Minor refactoring
 
 ---
  hw/scsi/test_disk.c | 23 +++++------------------
@@ -1318,7 +1318,7 @@ index 568f975961..91aecea9b1 100644
 From d4ebcfdd6e208fb9ffc471bd321f1d10fd9190f3 Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Fri, 23 Jan 2026 16:12:43 +0300
-Subject: [PATCH 08/20] [ADD] Add socket disconnection watcher
+Subject: [PATCH 08/21] [ADD] Add socket disconnection watcher
 
 ---
  hw/scsi/test_disk.c | 47 +++++++++++++++++++++++++++++++++++++++++++--
@@ -1432,7 +1432,7 @@ index 91aecea9b1..1a9c70eacf 100644
 From fa061d030587aec4ba62be1e61ba3ed123bf4fdc Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Sun, 25 Jan 2026 13:14:46 +0300
-Subject: [PATCH 09/20] [REF] Move server to contrib folder
+Subject: [PATCH 09/21] [REF] Move server to contrib folder
 
 ---
  .gitignore                              |  2 +-
@@ -1560,7 +1560,7 @@ index 0000000000..73808f620f
 From 24af94f667d7eec3af9a92725c51bb535693e00c Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Sun, 25 Jan 2026 19:33:53 +0300
-Subject: [PATCH 10/20] [UPD] Update server
+Subject: [PATCH 10/21] [UPD] Update server
 
 ---
  contrib/test_disk-server/server.cpp | 35 +++++++++++++----------------
@@ -1657,7 +1657,7 @@ index 73808f620f..7cca000034 100644
 From 36e96716d089527a1a8d4b59f0bac9bccaa336c4 Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Sun, 25 Jan 2026 19:36:53 +0300
-Subject: [PATCH 11/20] [UPD] Change logic of acquiring latency value from
+Subject: [PATCH 11/21] [UPD] Change logic of acquiring latency value from
  server
 
 ---
@@ -1816,7 +1816,7 @@ index 1a9c70eacf..acc1285d62 100644
 From b650afa996995ce30eeabbd5c66199d7b9e1b878 Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Tue, 27 Jan 2026 15:11:41 +0300
-Subject: [PATCH 12/20] [ADD] Add WRITE command handling
+Subject: [PATCH 12/21] [ADD] Add WRITE command handling
 
 ---
  hw/scsi/test_disk.c | 19 +++++++++++++------
@@ -1916,7 +1916,7 @@ index 4124631d23..216d38a394 100644
 From cf174a08c22b80cb2285a229eaeb73e814001daa Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Tue, 27 Jan 2026 15:12:39 +0300
-Subject: [PATCH 13/20] [ADD] Server: Add WRITE latency parameter
+Subject: [PATCH 13/21] [ADD] Server: Add WRITE latency parameter
 
 ---
  contrib/test_disk-server/server.cpp | 13 +++++++------
@@ -1969,7 +1969,7 @@ index dca2d12727..65f3c59cc8 100644
 From 7902903a4740af9983fc57b33e8cb56acf4ae258 Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Fri, 30 Jan 2026 20:58:46 +0300
-Subject: [PATCH 14/20] [FIX] Remove unit_attention and MEDIUM_CHANGE call
+Subject: [PATCH 14/21] [FIX] Remove unit_attention and MEDIUM_CHANGE call
  causing SEGFAULT
 
 ---
@@ -2072,7 +2072,7 @@ index acc1285d62..4ef28ee37a 100644
 From 84249f7acf2bc6c362d45173406e1d42a675f976 Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Sun, 1 Feb 2026 15:52:46 +0300
-Subject: [PATCH 15/20] [REF] Use vm_stop() to freeze virtual machine
+Subject: [PATCH 15/21] [REF] Use vm_stop() to freeze virtual machine
 
 ---
  hw/scsi/test_disk.c | 144 +++++++++++++++++++++++++++-----------------
@@ -2278,7 +2278,7 @@ index 6ab9300711..3529ce1288 100644
 From 17d3ff11762e281e84ae9331599c93f82a5ea0ff Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Sun, 1 Feb 2026 16:27:56 +0300
-Subject: [PATCH 16/20] [UPD] Extend ServerRequest and ServerResponse structs
+Subject: [PATCH 16/21] [UPD] Extend ServerRequest and ServerResponse structs
 
 ---
  contrib/test_disk-server/server.cpp |  8 ++++++--
@@ -2389,7 +2389,7 @@ index 4ef28ee37a..a2deee5318 100644
 From a8edb01c447aab2f8878c9165edf6023898cc8d5 Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Thu, 5 Feb 2026 19:15:49 +0300
-Subject: [PATCH 17/20] [ADD] Improve server logic and create a toolkit
+Subject: [PATCH 17/21] [ADD] Improve server logic and create a toolkit
 
 ---
  contrib/test_disk-server/CMakeLists.txt       |  21 +++
@@ -2715,7 +2715,7 @@ index 0000000000..6d9845f770
 From e465c4e0fc3f29ee6f11623db07e5a716bd15a1f Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Fri, 6 Feb 2026 18:03:32 +0300
-Subject: [PATCH 18/20] [REF] Minor server refactoring
+Subject: [PATCH 18/21] [REF] Minor server refactoring
 
 ---
  contrib/test_disk-server/change_parameters.cpp | 11 ++++++++++-
@@ -2763,7 +2763,7 @@ index 2e095a0389..3f703bd4f0 100644
 From d4c62908995821b21ea77294953e9f6c5f32d659 Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Fri, 6 Feb 2026 18:05:04 +0300
-Subject: [PATCH 19/20] [ADD] Add python bindings
+Subject: [PATCH 19/21] [ADD] Add python bindings
 
 ---
  contrib/test_disk-server/CMakeLists.txt       | 27 ++++++++++-
@@ -2998,7 +2998,7 @@ index 6d9845f770..04f9cf6952 100644
 From 3be78c790a4e6fac4854cf0dc02299aa2f3b7ec6 Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Sat, 7 Feb 2026 13:59:26 +0300
-Subject: [PATCH 20/20] [REF] Minor changes
+Subject: [PATCH 20/21] [REF] Minor changes
 
 ---
  hw/scsi/test_disk.c | 25 ++++++++++++++++---------
@@ -3091,6 +3091,71 @@ index 37403eda0d..0c80ca6201 100644
  }
  
  static int test_disk_parse_cdb(SCSIDevice* scsi_dev, SCSICommand* cmd, uint8_t* request_buf, size_t request_buf_len, void* hba_private) {
+-- 
+2.52.0
+
+
+From 23e8c9b5e9c0c336827c81d9ae63bf0f00427956 Mon Sep 17 00:00:00 2001
+From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
+Date: Sat, 7 Feb 2026 15:39:31 +0300
+Subject: [PATCH 21/21] [ADD] Add python server
+
+---
+ contrib/test_disk-server/change_parameters.py |  7 +++++
+ contrib/test_disk-server/server.py            | 29 +++++++++++++++++++
+ 2 files changed, 36 insertions(+)
+ create mode 100644 contrib/test_disk-server/change_parameters.py
+ create mode 100644 contrib/test_disk-server/server.py
+
+diff --git a/contrib/test_disk-server/change_parameters.py b/contrib/test_disk-server/change_parameters.py
+new file mode 100644
+index 0000000000..57e4256266
+--- /dev/null
++++ b/contrib/test_disk-server/change_parameters.py
+@@ -0,0 +1,7 @@
++import server_toolkit_py as st
++
++if __name__ == "__main__":
++    read_latency_ms = int(input("Read latency: "))
++    write_latency_ms = int(input("Write latency: "))
++
++    st.change_server_parameters("127.0.0.1", 31234, read_latency_ms, write_latency_ms)
+\ No newline at end of file
+diff --git a/contrib/test_disk-server/server.py b/contrib/test_disk-server/server.py
+new file mode 100644
+index 0000000000..55997c1fc2
+--- /dev/null
++++ b/contrib/test_disk-server/server.py
+@@ -0,0 +1,29 @@
++import server_toolkit_py as st
++
++read_latency_ms = 0
++write_latency_ms = 0
++
++def callback(server_req: st.ServerRequest) -> st.ServerResponse:
++    global read_latency_ms, write_latency_ms
++
++    server_res = st.ServerResponse()
++
++    if server_req.source == st.SOURCE_CHANGE_PARAMETERS:
++        read_latency_ms = server_req.change_parameters_payload.read_latency_ms
++        write_latency_ms = server_req.change_parameters_payload.write_latency_ms
++
++    elif server_req.source == st.SOURCE_TEST_DISK:
++        print(f"Command: 0x{server_req.test_disk_payload.command:02X}")
++
++        server_res.latency = read_latency_ms \
++            if server_req.test_disk_payload.command == 0x28 or server_req.test_disk_payload.command == 0x08 \
++            else write_latency_ms
++
++    return server_res
++
++if __name__ == "__main__":
++    server_fd = st.create_server("127.0.0.1", 31234)
++    if server_fd == -1:
++        exit(-1)
++
++    st.run_server(server_fd, callback)
 -- 
 2.52.0
 

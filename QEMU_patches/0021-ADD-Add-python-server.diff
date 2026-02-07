@@ -1,0 +1,49 @@
+diff --git a/contrib/test_disk-server/change_parameters.py b/contrib/test_disk-server/change_parameters.py
+new file mode 100644
+index 0000000000..57e4256266
+--- /dev/null
++++ b/contrib/test_disk-server/change_parameters.py
+@@ -0,0 +1,7 @@
++import server_toolkit_py as st
++
++if __name__ == "__main__":
++    read_latency_ms = int(input("Read latency: "))
++    write_latency_ms = int(input("Write latency: "))
++
++    st.change_server_parameters("127.0.0.1", 31234, read_latency_ms, write_latency_ms)
+\ No newline at end of file
+diff --git a/contrib/test_disk-server/server.py b/contrib/test_disk-server/server.py
+new file mode 100644
+index 0000000000..55997c1fc2
+--- /dev/null
++++ b/contrib/test_disk-server/server.py
+@@ -0,0 +1,29 @@
++import server_toolkit_py as st
++
++read_latency_ms = 0
++write_latency_ms = 0
++
++def callback(server_req: st.ServerRequest) -> st.ServerResponse:
++    global read_latency_ms, write_latency_ms
++
++    server_res = st.ServerResponse()
++
++    if server_req.source == st.SOURCE_CHANGE_PARAMETERS:
++        read_latency_ms = server_req.change_parameters_payload.read_latency_ms
++        write_latency_ms = server_req.change_parameters_payload.write_latency_ms
++
++    elif server_req.source == st.SOURCE_TEST_DISK:
++        print(f"Command: 0x{server_req.test_disk_payload.command:02X}")
++
++        server_res.latency = read_latency_ms \
++            if server_req.test_disk_payload.command == 0x28 or server_req.test_disk_payload.command == 0x08 \
++            else write_latency_ms
++
++    return server_res
++
++if __name__ == "__main__":
++    server_fd = st.create_server("127.0.0.1", 31234)
++    if server_fd == -1:
++        exit(-1)
++
++    st.run_server(server_fd, callback)
