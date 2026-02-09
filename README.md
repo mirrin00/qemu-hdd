@@ -85,6 +85,8 @@ dd if=/dev/sda of=/dev/sdb bs=512 count=2048 oflag=direct
 
 fio
 ```
+apt install fio
+
 # чтение
 fio --name=test --filename=/dev/sdb --rw=read --bs=512 --direct=1 --ioengine=libaio --iodepth=1 --runtime=1000 --time_based --continue_on_error=all --status-interval=1
 
