@@ -1,0 +1,284 @@
+diff --git a/hw/scsi/test_disk.c b/hw/scsi/test_disk.c
+index 0c80ca6201..8f6c1a1857 100644
+--- a/hw/scsi/test_disk.c
++++ b/hw/scsi/test_disk.c
+@@ -8,6 +8,7 @@
+ #include "scsi/constants.h"
+ #include "contrib/test_disk-server/structs.h"
+ #include "system/block-backend-global-state.h"
++#include "system/block-backend-io.h"
+ #include "system/cpu-timers.h"
+ #include "system/runstate.h"
+ 
+@@ -16,8 +17,7 @@
+ 
+ // Device properties
+ static const Property test_disk_properties[] = {
+-    DEFINE_PROP_SIZE("size", TestDisk, size, 1 * 1024 * 1024 * 1024),
+-    DEFINE_PROP_SIZE("bs", TestDisk, block_size, 512),
++    DEFINE_BLOCK_PROPERTIES(TestDisk, parent_scsi_dev.conf),
+     DEFINE_PROP_UINT8("disk-id", TestDisk, id, 0)
+ };
+ 
+@@ -29,14 +29,21 @@ typedef struct TestDiskReq {
+ 
+     uint8_t* response_buf;
+     int response_buf_len;
++
++    struct iovec iov;
++    QEMUIOVector qiov;
+ } TestDiskReq;
+ 
+ 
+ // Request handlers
+ static int32_t test_disk_send_command(SCSIRequest* scsi_req, uint8_t* request_buf);
++
+ static void test_disk_read_data(SCSIRequest* scsi_req);
++
+ static void test_disk_write_data(SCSIRequest* scsi_req);
++
+ static uint8_t* test_disk_get_buf(SCSIRequest* scsi_req);
++
+ static void test_disk_free_req(SCSIRequest* scsi_req);
+ 
+ 
+@@ -53,10 +60,18 @@ static const SCSIReqOps test_disk_req_ops = {
+ 
+ // Helper functions
+ static void test_disk_socket_start_connection(void* opaque);
++
+ static void test_disk_socket_connected(QIOTask* task, gpointer opaque);
++
+ static gboolean test_disk_socket_watch(QIOChannel* ioc, GIOCondition condition, gpointer opaque);
++
++static void test_disk_bh_schedule_routine(TestDisk* disk, SCSIRequest* scsi_req);
++
+ static void test_disk_bh_routine(void* opaque);
+-static void test_disk_io_callback(void* opaque);
++
++static void test_disk_latency_callback(void* opaque);
++
++static void test_disk_blk_aio_complete(void* opaque, int ret);
+ 
+ 
+ // Helper structs
+@@ -100,6 +115,7 @@ static int32_t test_disk_send_command(SCSIRequest* scsi_req, uint8_t* request_bu
+         return 0;
+     }
+ 
++    int req_target_len;
+     switch (command) {
+         case 0x00: // TEST UNIT READY
+             scsi_req_complete(scsi_req, GOOD);
+@@ -108,8 +124,15 @@ static int32_t test_disk_send_command(SCSIRequest* scsi_req, uint8_t* request_bu
+         case 0x25: // READ CAPACITY (10)
+             memset(disk_req->response_buf, 0, 8);
+ 
+-            const uint32_t block_size = disk->block_size;
+-            const uint32_t total_blocks = disk->size / disk->block_size;
++            const int64_t disk_size = blk_getlength(disk->parent_scsi_dev.conf.blk);
++            if (disk_size < 0) {
++                scsi_req_build_sense(scsi_req, SENSE_CODE(LUN_NOT_READY));
++                scsi_req_complete(scsi_req, CHECK_CONDITION);
++                return 0;
++            }
++
++            const uint32_t block_size = disk->parent_scsi_dev.conf.logical_block_size;
++            const uint32_t total_blocks = disk_size / block_size;
+ 
+             const uint32_t last_lba = total_blocks - 1;
+ 
+@@ -147,16 +170,23 @@ static int32_t test_disk_send_command(SCSIRequest* scsi_req, uint8_t* request_bu
+ 
+         case 0x08: // READ (6)
+         case 0x28: // READ (10)
+-        case 0x0A: // WRITE (6)
+-        case 0x2A: // WRITE (10)
++            req_target_len = (int) scsi_req->cmd.xfer;
+ 
+-            int req_target_len = (int)scsi_req->cmd.xfer;
++            if (req_target_len > MAX_XFER_SIZE) {
++                printf("[READ]: target xfer size from request is greater than disk max xfer size\n");
+ 
+-            if (req_target_len == 0) {
+-                scsi_req_complete(scsi_req, GOOD);
++                scsi_req_build_sense(scsi_req, SENSE_CODE(INVALID_FIELD));
++                scsi_req_complete(scsi_req, CHECK_CONDITION);
+                 break;
+             }
+ 
++            test_disk_bh_schedule_routine(disk, scsi_req);
++            break;
++
++        case 0x0A: // WRITE (6)
++        case 0x2A: // WRITE (10)
++            req_target_len = (int) scsi_req->cmd.xfer;
++
+             if (req_target_len > MAX_XFER_SIZE) {
+                 printf("[READ]: target xfer size from request is greater than disk max xfer size\n");
+ 
+@@ -165,16 +195,7 @@ static int32_t test_disk_send_command(SCSIRequest* scsi_req, uint8_t* request_bu
+                 break;
+             }
+ 
+-            TestDiskBHArgs* args = g_new0(TestDiskBHArgs, 1);
+-            args->disk = disk;
+-            args->scsi_req = scsi_req;
+-            args->command = command;
+-            args->req_target_len = req_target_len;
+-
+-            scsi_req_ref(scsi_req);
+-
+-            aio_bh_schedule_oneshot(qemu_get_aio_context(), test_disk_bh_routine, args);
+-
++            scsi_req_data(scsi_req, req_target_len); // goes to test_disk_write_data()
+             break;
+ 
+         default:
+@@ -193,7 +214,11 @@ static void test_disk_read_data(SCSIRequest* scsi_req) {
+ }
+ 
+ static void test_disk_write_data(SCSIRequest* scsi_req) {
+-    scsi_req_complete(scsi_req, GOOD);
++    // data now in disk_req->response_buf;
++
++    TestDisk* disk = DO_UPCAST(TestDisk, parent_scsi_dev, scsi_req->dev);
++
++    test_disk_bh_schedule_routine(disk, scsi_req);
+ }
+ 
+ static uint8_t* test_disk_get_buf(SCSIRequest* scsi_req) {
+@@ -281,6 +306,25 @@ static gboolean test_disk_socket_watch(QIOChannel* ioc, GIOCondition condition,
+     return TRUE;
+ }
+ 
++static void test_disk_bh_schedule_routine(TestDisk* disk, SCSIRequest* scsi_req) {
++    int req_target_len = (int) scsi_req->cmd.xfer;
++
++    if (req_target_len == 0) {
++        scsi_req_complete(scsi_req, GOOD);
++        return;
++    }
++
++    TestDiskBHArgs* args = g_new0(TestDiskBHArgs, 1);
++    args->disk = disk;
++    args->scsi_req = scsi_req;
++    args->command = scsi_req->cmd.buf[0];
++    args->req_target_len = req_target_len;
++
++    scsi_req_ref(scsi_req);
++
++    aio_bh_schedule_oneshot(qemu_get_aio_context(), test_disk_bh_routine, args);
++}
++
+ static void test_disk_bh_routine(void* opaque) {
+     TestDiskBHArgs* args = opaque;
+ 
+@@ -354,11 +398,45 @@ static void test_disk_bh_routine(void* opaque) {
+     g_free(args);
+ }
+ 
+-static void test_disk_io_callback(void* opaque) {
+-    TestDiskReq* req = opaque;
++static void test_disk_latency_callback(void* opaque) {
++    TestDiskReq* disk_req = opaque;
++    SCSIRequest* scsi_req = &disk_req->parent_scsi_req;
++
++    TestDisk* disk = DO_UPCAST(TestDisk, parent_scsi_dev, disk_req->parent_scsi_req.dev);
++    BlockBackend *blk = disk->parent_scsi_dev.conf.blk;
++
++    disk_req->iov.iov_base = disk_req->response_buf;
++    disk_req->iov.iov_len = disk_req->response_buf_len;
++    qemu_iovec_init_external(&disk_req->qiov, &disk_req->iov, 1);
++
++    int64_t offset = scsi_req->cmd.lba * disk->parent_scsi_dev.blocksize;
++
++    if (scsi_req->cmd.mode == SCSI_XFER_FROM_DEV) {
++        blk_aio_preadv(blk, offset, &disk_req->qiov, 0, test_disk_blk_aio_complete, disk_req);
++    } else if (scsi_req->cmd.mode == SCSI_XFER_TO_DEV) {
++        blk_aio_pwritev(blk, offset, &disk_req->qiov, 0, test_disk_blk_aio_complete, disk_req);
++    } else {
++        scsi_req_complete(scsi_req, GOOD);
++    }
++}
++
++static void test_disk_blk_aio_complete(void* opaque, int ret) {
++    TestDiskReq* disk_req = opaque;
++    SCSIRequest* scsi_req = &disk_req->parent_scsi_req;
++
++    if (ret < 0) {
++        printf("[DISK]: AIO error %d\n", ret);
++
++        scsi_req_build_sense(scsi_req, SENSE_CODE(IO_ERROR));
++        scsi_req_complete(scsi_req, CHECK_CONDITION);
++        return;
++    }
+ 
+-    memset(req->response_buf, 0, req->response_buf_len);
+-    scsi_req_data(&req->parent_scsi_req, req->response_buf_len);
++    if (scsi_req->cmd.mode == SCSI_XFER_FROM_DEV) {
++        scsi_req_data(scsi_req, disk_req->response_buf_len); // goes to test_disk_read_data()
++    } else {
++        scsi_req_complete(scsi_req, GOOD);
++    }
+ }
+ 
+ 
+@@ -371,7 +449,7 @@ static SCSIRequest* test_disk_alloc_req(SCSIDevice* scsi_dev, uint32_t tag, uint
+ 
+     disk_req->response_buf = g_malloc0(MAX_XFER_SIZE);
+ 
+-    disk_req->timer = timer_new_ms(QEMU_CLOCK_VIRTUAL, test_disk_io_callback, disk_req);
++    disk_req->timer = timer_new_ms(QEMU_CLOCK_VIRTUAL, test_disk_latency_callback, disk_req);
+ 
+     return scsi_req;
+ }
+@@ -395,12 +473,27 @@ static int test_disk_parse_cdb(SCSIDevice* scsi_dev, SCSICommand* cmd, uint8_t*
+ }
+ 
+ static void test_disk_realize(SCSIDevice* scsi_dev, Error** errp) {
+-    TestDisk* disk = DO_UPCAST(TestDisk, parent_scsi_dev, scsi_dev);
++    if (!scsi_dev->conf.blk) {
++        error_setg(errp, "[DISK]: no drive specified");
++        return;
++    }
++
++    if (!blkconf_blocksizes(&scsi_dev->conf, errp)) {
++        return;
++    }
++
++    if (!blkconf_geometry(&scsi_dev->conf, NULL, 65535, 255, 255, errp)) {
++        return;
++    }
++
++    if (!blkconf_apply_backend_options(&scsi_dev->conf, blk_is_writable(scsi_dev->conf.blk), true, errp)) {
++        return;
++    }
+ 
+     scsi_dev->type = TYPE_DISK;
+-    scsi_dev->blocksize = (int)disk->block_size;
++    scsi_dev->blocksize = scsi_dev->conf.logical_block_size;
+ 
+-    scsi_dev->conf.blk = blk_new(qemu_get_aio_context(), BLK_PERM_ALL, BLK_PERM_ALL);
++    TestDisk* disk = DO_UPCAST(TestDisk, parent_scsi_dev, scsi_dev);
+ 
+     disk->socket_connect_timer = timer_new_ms(QEMU_CLOCK_REALTIME, test_disk_socket_start_connection, disk);
+     timer_mod(disk->socket_connect_timer, qemu_clock_get_ms(QEMU_CLOCK_REALTIME) + 1000);
+diff --git a/hw/scsi/test_disk.h b/hw/scsi/test_disk.h
+index a2deee5318..0e60ec71e8 100644
+--- a/hw/scsi/test_disk.h
++++ b/hw/scsi/test_disk.h
+@@ -15,13 +15,8 @@ struct TestDisk {
+     uint8_t id;
+ 
+     QIOChannelSocket* socket;
+-
+-    uint64_t size;
+-    uint64_t block_size;
+-
+     QEMUTimer* socket_connect_timer;
+     bool connecting;
+-
+     guint socket_watcher_tag;
+ };
+ 
