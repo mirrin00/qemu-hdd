@@ -1,8 +1,8 @@
 # qemu-hdd
 ## Сборка QEMU
-Необходимо склонировать репозиторий QEMU
+Необходимо склонировать репозиторий QEMU версии 9.1.0
 ```
-git clone git@github.com:qemu/qemu.git
+git clone --branch v9.1.0 git@github.com:qemu/qemu.git
 cd qemu
 ```
 

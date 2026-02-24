@@ -1,0 +1,52 @@
+diff --git a/hw/scsi/test_disk.c b/hw/scsi/test_disk.c
+index 8f6c1a1857..dcddf9f9bb 100644
+--- a/hw/scsi/test_disk.c
++++ b/hw/scsi/test_disk.c
+@@ -4,19 +4,17 @@
+ #include "test_disk.h"
+ #include "block/block-common.h"
+ #include "qapi/error.h"
+-#include "qemu/bswap.h"
+ #include "scsi/constants.h"
+ #include "contrib/test_disk-server/structs.h"
+-#include "system/block-backend-global-state.h"
+-#include "system/block-backend-io.h"
+-#include "system/cpu-timers.h"
+-#include "system/runstate.h"
++#include "sysemu/block-backend.h"
++#include "sysemu/cpu-timers.h"
++#include "sysemu/runstate.h"
+ 
+ #define MAX_XFER_SIZE (1 * 1024 * 1024)
+ 
+ 
+ // Device properties
+-static const Property test_disk_properties[] = {
++static Property test_disk_properties[] = {
+     DEFINE_BLOCK_PROPERTIES(TestDisk, parent_scsi_dev.conf),
+     DEFINE_PROP_UINT8("disk-id", TestDisk, id, 0)
+ };
+@@ -351,12 +349,12 @@ static void test_disk_bh_routine(void* opaque) {
+     uint32_t latency_ms = 0;
+     bool socket_alive = true;
+ 
+-    if (qio_channel_write_all(QIO_CHANNEL(disk->socket), &server_req, sizeof(server_req), NULL) == -1) {
++    if (qio_channel_write_all(QIO_CHANNEL(disk->socket), (char*) &server_req, sizeof(server_req), NULL) == -1) {
+         socket_alive = false;
+     }
+ 
+     if (socket_alive) {
+-        if (qio_channel_read_all(QIO_CHANNEL(disk->socket), &server_res, sizeof(server_res), NULL) == -1) {
++        if (qio_channel_read_all(QIO_CHANNEL(disk->socket), (char*) &server_res, sizeof(server_res), NULL) == -1) {
+             socket_alive = false;
+         }
+ 
+@@ -505,7 +503,7 @@ static void test_disk_realize(SCSIDevice* scsi_dev, Error** errp) {
+ // ============================================================================
+ 
+ 
+-static void test_disk_class_init(ObjectClass* klass, const void* data) {
++static void test_disk_class_init(ObjectClass* klass, void* data) {
+     DeviceClass* dc = DEVICE_CLASS(klass);
+     SCSIDeviceClass* sc = SCSI_DEVICE_CLASS(klass);
+ 

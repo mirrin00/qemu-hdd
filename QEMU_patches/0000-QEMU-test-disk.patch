@@ -1,7 +1,7 @@
-From ea5fcc6690b3b7a0243f05b4bff9dab5dd19a2ba Mon Sep 17 00:00:00 2001
+From 7ca343c91fd44cc992a8785fc2cc6270f71bca21 Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Tue, 13 Jan 2026 19:53:51 +0300
-Subject: [PATCH 01/22] [ADD] Add test scsi disk
+Subject: [PATCH 01/23] Add test scsi disk
 
 ---
  .gitignore                  |  1 +
@@ -26,10 +26,10 @@ index 61fa39967b..a0687c79d5 100644
  .sdk
  .stgit-*
 diff --git a/hw/scsi/Kconfig b/hw/scsi/Kconfig
-index 5743ee9b4d..fcc81b304a 100644
+index 1feab84c4c..26f8466783 100644
 --- a/hw/scsi/Kconfig
 +++ b/hw/scsi/Kconfig
-@@ -69,3 +69,8 @@ config VHOST_USER_SCSI
+@@ -64,3 +64,8 @@ config VHOST_USER_SCSI
      default y if VIRTIO_PCI
      select VHOST_SCSI_COMMON
      depends on VIRTIO && VHOST_USER && LINUX
@@ -39,10 +39,10 @@ index 5743ee9b4d..fcc81b304a 100644
 +    default y
 +    depends on SCSI
 diff --git a/hw/scsi/meson.build b/hw/scsi/meson.build
-index b874fe1ecd..a45671e646 100644
+index bb7d289aa0..37b44f63d0 100644
 --- a/hw/scsi/meson.build
 +++ b/hw/scsi/meson.build
-@@ -16,6 +16,7 @@ scsi_ss.add(when: 'CONFIG_NCR710_SCSI', if_true: files('ncr53c710.c', 'lasi_ncr7
+@@ -15,6 +15,7 @@ scsi_ss.add(when: 'CONFIG_LSI_SCSI_PCI', if_true: files('lsi53c895a.c'))
  scsi_ss.add(when: 'CONFIG_MEGASAS_SCSI_PCI', if_true: files('megasas.c'))
  scsi_ss.add(when: 'CONFIG_MPTSAS_SCSI_PCI', if_true: files('mptsas.c', 'mptconfig.c', 'mptendian.c'))
  scsi_ss.add(when: 'CONFIG_VMW_PVSCSI_SCSI_PCI', if_true: files('vmw_pvscsi.c'))
@@ -120,10 +120,10 @@ index 0000000000..be2f7ccbd3
 2.53.0
 
 
-From 9ed9332e5ab35eddcb3825badeb836191db9ac4f Mon Sep 17 00:00:00 2001
+From 77eca0c9efe909535da6ae02e14e94bd241075a4 Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Thu, 15 Jan 2026 18:12:16 +0300
-Subject: [PATCH 02/22] [ADD] Add basic request handling
+Subject: [PATCH 02/23] Add basic request handling
 
 ---
  hw/scsi/test_disk.c         | 104 +++++++++++++++++++++++++++++++++++-
@@ -276,10 +276,10 @@ index be2f7ccbd3..ac9e278372 100644
 2.53.0
 
 
-From ebeb0d1267a62249298a6a41942ead9c898b6d0d Mon Sep 17 00:00:00 2001
+From 011fd427f23cd142f639d7ceb926fb7e9651115e Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Tue, 20 Jan 2026 20:24:58 +0300
-Subject: [PATCH 03/22] [ADD] Add socket connection with server
+Subject: [PATCH 03/23] Add socket connection with server
 
 ---
  hw/scsi/test_disk.c         | 72 +++++++++++++++++++++++++------------
@@ -454,10 +454,10 @@ index ac9e278372..c6a07db5dd 100644
 2.53.0
 
 
-From d69b0f375636309f538260f635a387480bb68456 Mon Sep 17 00:00:00 2001
+From ec529fae9d439c122d91c638a8cd7572d396dde6 Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Wed, 21 Jan 2026 20:00:40 +0300
-Subject: [PATCH 04/22] [ADD] Add read command handler with delay
+Subject: [PATCH 04/23] Add read command handler with delay
 
 ---
  hw/scsi/test_disk.c | 69 ++++++++++++++++++++++++++++++++++++++++++---
@@ -589,10 +589,10 @@ index 01481301fa..a4bf98bf5f 100644
 2.53.0
 
 
-From 2cc233755b9e5343fc3fcbf6a7f580da0e8c7a93 Mon Sep 17 00:00:00 2001
+From aba4962aeafcc3212ba53748d2f3ceb7c387a662 Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Thu, 22 Jan 2026 18:37:00 +0300
-Subject: [PATCH 05/22] [ADD] Add ability to set constants
+Subject: [PATCH 05/23] Add ability to set constants
 
 ---
  hw/scsi/test_disk.c         | 47 +++++++++++++++++++++++++++++--------
@@ -722,11 +722,11 @@ index c6a07db5dd..a86908d965 100644
 2.53.0
 
 
-From f38ab8d2ade72df4b97cc7c2733e9bb5f4ba70fc Mon Sep 17 00:00:00 2001
+From 68c86c37cf64c8d4850da4852bac4c9947222feb Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Fri, 23 Jan 2026 01:28:47 +0300
-Subject: [PATCH 06/22] [REF] Reafactor + async socket connection and
- reconnection mechanism
+Subject: [PATCH 06/23] Reafactor + async socket connection and reconnection
+ mechanism
 
 ---
  hw/scsi/test_disk.c                 | 348 +++++++++++++++++-----------
@@ -1218,10 +1218,10 @@ index a86908d965..568f975961 100644
 2.53.0
 
 
-From 49795e6b25b7877029e195cd0b60583cdd25b1d5 Mon Sep 17 00:00:00 2001
+From 9b185b32fd75b77a5c6ba1fcceafe34f145e85ec Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Fri, 23 Jan 2026 12:55:40 +0300
-Subject: [PATCH 07/22] [REF] Minor refactoring
+Subject: [PATCH 07/23] Minor refactoring
 
 ---
  hw/scsi/test_disk.c | 23 +++++------------------
@@ -1315,10 +1315,10 @@ index 568f975961..91aecea9b1 100644
 2.53.0
 
 
-From d4ebcfdd6e208fb9ffc471bd321f1d10fd9190f3 Mon Sep 17 00:00:00 2001
+From 1c47bf51331d7526074c84b85dd5dd3db0988c22 Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Fri, 23 Jan 2026 16:12:43 +0300
-Subject: [PATCH 08/22] [ADD] Add socket disconnection watcher
+Subject: [PATCH 08/23] Add socket disconnection watcher
 
 ---
  hw/scsi/test_disk.c | 47 +++++++++++++++++++++++++++++++++++++++++++--
@@ -1429,10 +1429,10 @@ index 91aecea9b1..1a9c70eacf 100644
 2.53.0
 
 
-From fa061d030587aec4ba62be1e61ba3ed123bf4fdc Mon Sep 17 00:00:00 2001
+From b23673d900254f3e270cde84a03902de855db79f Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Sun, 25 Jan 2026 13:14:46 +0300
-Subject: [PATCH 09/22] [REF] Move server to contrib folder
+Subject: [PATCH 09/23] Move server to contrib folder
 
 ---
  .gitignore                              |  2 +-
@@ -1557,10 +1557,10 @@ index 0000000000..73808f620f
 2.53.0
 
 
-From 24af94f667d7eec3af9a92725c51bb535693e00c Mon Sep 17 00:00:00 2001
+From 6d178a2e61d30902b24739daddf22ddd968f6b4c Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Sun, 25 Jan 2026 19:33:53 +0300
-Subject: [PATCH 10/22] [UPD] Update server
+Subject: [PATCH 10/23] Update server
 
 ---
  contrib/test_disk-server/server.cpp | 35 +++++++++++++----------------
@@ -1654,11 +1654,10 @@ index 73808f620f..7cca000034 100644
 2.53.0
 
 
-From 36e96716d089527a1a8d4b59f0bac9bccaa336c4 Mon Sep 17 00:00:00 2001
+From f5ced68344de677aeff619de00afc3bfbffc114e Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Sun, 25 Jan 2026 19:36:53 +0300
-Subject: [PATCH 11/22] [UPD] Change logic of acquiring latency value from
- server
+Subject: [PATCH 11/23] Change logic of acquiring latency value from server
 
 ---
  hw/scsi/test_disk.c | 79 +++++++++++++++++++++++++++++++++++----------
@@ -1813,10 +1812,10 @@ index 1a9c70eacf..acc1285d62 100644
 2.53.0
 
 
-From b650afa996995ce30eeabbd5c66199d7b9e1b878 Mon Sep 17 00:00:00 2001
+From c767d313939dcf7d3cb25ac52de2073daf920d31 Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Tue, 27 Jan 2026 15:11:41 +0300
-Subject: [PATCH 12/22] [ADD] Add WRITE command handling
+Subject: [PATCH 12/23] Add WRITE command handling
 
 ---
  hw/scsi/test_disk.c | 19 +++++++++++++------
@@ -1913,10 +1912,10 @@ index 4124631d23..216d38a394 100644
 2.53.0
 
 
-From cf174a08c22b80cb2285a229eaeb73e814001daa Mon Sep 17 00:00:00 2001
+From 8e08e1427aa1ebce20c6a96404c55ed2b4b6adc0 Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Tue, 27 Jan 2026 15:12:39 +0300
-Subject: [PATCH 13/22] [ADD] Server: Add WRITE latency parameter
+Subject: [PATCH 13/23] Server: Add WRITE latency parameter
 
 ---
  contrib/test_disk-server/server.cpp | 13 +++++++------
@@ -1966,11 +1965,11 @@ index dca2d12727..65f3c59cc8 100644
 2.53.0
 
 
-From 7902903a4740af9983fc57b33e8cb56acf4ae258 Mon Sep 17 00:00:00 2001
+From 8ff4fd73462c44ac11b62adcdee287e6e50f4de2 Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Fri, 30 Jan 2026 20:58:46 +0300
-Subject: [PATCH 14/22] [FIX] Remove unit_attention and MEDIUM_CHANGE call
- causing SEGFAULT
+Subject: [PATCH 14/23] Remove unit_attention and MEDIUM_CHANGE call causing
+ SEGFAULT
 
 ---
  hw/scsi/test_disk.c | 26 ++++++--------------------
@@ -2069,10 +2068,10 @@ index acc1285d62..4ef28ee37a 100644
 2.53.0
 
 
-From 84249f7acf2bc6c362d45173406e1d42a675f976 Mon Sep 17 00:00:00 2001
+From 77f760be6995bce8e053f77b1b0f3a274b2de339 Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Sun, 1 Feb 2026 15:52:46 +0300
-Subject: [PATCH 15/22] [REF] Use vm_stop() to freeze virtual machine
+Subject: [PATCH 15/23] Use vm_stop() to freeze virtual machine
 
 ---
  hw/scsi/test_disk.c | 144 +++++++++++++++++++++++++++-----------------
@@ -2275,10 +2274,10 @@ index 6ab9300711..3529ce1288 100644
 2.53.0
 
 
-From 17d3ff11762e281e84ae9331599c93f82a5ea0ff Mon Sep 17 00:00:00 2001
+From 34b6fff56232dbab6ea53631f8503ac720bf04bf Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Sun, 1 Feb 2026 16:27:56 +0300
-Subject: [PATCH 16/22] [UPD] Extend ServerRequest and ServerResponse structs
+Subject: [PATCH 16/23] Extend ServerRequest and ServerResponse structs
 
 ---
  contrib/test_disk-server/server.cpp |  8 ++++++--
@@ -2386,10 +2385,10 @@ index 4ef28ee37a..a2deee5318 100644
 2.53.0
 
 
-From a8edb01c447aab2f8878c9165edf6023898cc8d5 Mon Sep 17 00:00:00 2001
+From f61abc344b7035428ae4c8bb96645ff7f93079fc Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Thu, 5 Feb 2026 19:15:49 +0300
-Subject: [PATCH 17/22] [ADD] Improve server logic and create a toolkit
+Subject: [PATCH 17/23] Improve server logic and create a toolkit
 
 ---
  contrib/test_disk-server/CMakeLists.txt       |  21 +++
@@ -2712,10 +2711,10 @@ index 0000000000..6d9845f770
 2.53.0
 
 
-From e465c4e0fc3f29ee6f11623db07e5a716bd15a1f Mon Sep 17 00:00:00 2001
+From e1096412f16601f37c0241bc1dcc792e52f467c5 Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Fri, 6 Feb 2026 18:03:32 +0300
-Subject: [PATCH 18/22] [REF] Minor server refactoring
+Subject: [PATCH 18/23] Minor server refactoring
 
 ---
  contrib/test_disk-server/change_parameters.cpp | 11 ++++++++++-
@@ -2760,10 +2759,10 @@ index 2e095a0389..3f703bd4f0 100644
 2.53.0
 
 
-From d4c62908995821b21ea77294953e9f6c5f32d659 Mon Sep 17 00:00:00 2001
+From 787ee6fe621e6202922bf34b2bd967956a117a7f Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Fri, 6 Feb 2026 18:05:04 +0300
-Subject: [PATCH 19/22] [ADD] Add python bindings
+Subject: [PATCH 19/23] Add python bindings
 
 ---
  contrib/test_disk-server/CMakeLists.txt       | 27 ++++++++++-
@@ -2995,10 +2994,10 @@ index 6d9845f770..04f9cf6952 100644
 2.53.0
 
 
-From 3be78c790a4e6fac4854cf0dc02299aa2f3b7ec6 Mon Sep 17 00:00:00 2001
+From 849824b4db294c7d24539ffb83528c472d49fe3c Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Sat, 7 Feb 2026 13:59:26 +0300
-Subject: [PATCH 20/22] [REF] Minor changes
+Subject: [PATCH 20/23] Minor changes
 
 ---
  hw/scsi/test_disk.c | 25 ++++++++++++++++---------
@@ -3095,10 +3094,10 @@ index 37403eda0d..0c80ca6201 100644
 2.53.0
 
 
-From 23e8c9b5e9c0c336827c81d9ae63bf0f00427956 Mon Sep 17 00:00:00 2001
+From 62cc2b1c753c9ec89a8338423ab9c1cbb9387a30 Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Sat, 7 Feb 2026 15:39:31 +0300
-Subject: [PATCH 21/22] [ADD] Add python server
+Subject: [PATCH 21/23] Add python server
 
 ---
  contrib/test_disk-server/change_parameters.py |  7 +++++
@@ -3160,10 +3159,10 @@ index 0000000000..55997c1fc2
 2.53.0
 
 
-From b71049e2edb4fbade7bfeffd31be2e994daed17f Mon Sep 17 00:00:00 2001
+From 2165e3d6b793e87dd7bca585ca4d9b1d29e4cc1a Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Mon, 16 Feb 2026 18:16:50 +0300
-Subject: [PATCH 22/22] [ADD] Use BlockBackend
+Subject: [PATCH 22/23] Use BlockBackend
 
 ---
  hw/scsi/test_disk.c | 151 +++++++++++++++++++++++++++++++++++---------
@@ -3453,6 +3452,71 @@ index a2deee5318..0e60ec71e8 100644
 -
      guint socket_watcher_tag;
  };
+ 
+-- 
+2.53.0
+
+
+From 18a0a47f7bb96c86980d403ee055b7945c8b6311 Mon Sep 17 00:00:00 2001
+From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
+Date: Tue, 24 Feb 2026 20:10:49 +0300
+Subject: [PATCH 23/23] [FIX] Fix for QEMU v9.1.0
+
+---
+ hw/scsi/test_disk.c | 16 +++++++---------
+ 1 file changed, 7 insertions(+), 9 deletions(-)
+
+diff --git a/hw/scsi/test_disk.c b/hw/scsi/test_disk.c
+index 8f6c1a1857..dcddf9f9bb 100644
+--- a/hw/scsi/test_disk.c
++++ b/hw/scsi/test_disk.c
+@@ -4,19 +4,17 @@
+ #include "test_disk.h"
+ #include "block/block-common.h"
+ #include "qapi/error.h"
+-#include "qemu/bswap.h"
+ #include "scsi/constants.h"
+ #include "contrib/test_disk-server/structs.h"
+-#include "system/block-backend-global-state.h"
+-#include "system/block-backend-io.h"
+-#include "system/cpu-timers.h"
+-#include "system/runstate.h"
++#include "sysemu/block-backend.h"
++#include "sysemu/cpu-timers.h"
++#include "sysemu/runstate.h"
+ 
+ #define MAX_XFER_SIZE (1 * 1024 * 1024)
+ 
+ 
+ // Device properties
+-static const Property test_disk_properties[] = {
++static Property test_disk_properties[] = {
+     DEFINE_BLOCK_PROPERTIES(TestDisk, parent_scsi_dev.conf),
+     DEFINE_PROP_UINT8("disk-id", TestDisk, id, 0)
+ };
+@@ -351,12 +349,12 @@ static void test_disk_bh_routine(void* opaque) {
+     uint32_t latency_ms = 0;
+     bool socket_alive = true;
+ 
+-    if (qio_channel_write_all(QIO_CHANNEL(disk->socket), &server_req, sizeof(server_req), NULL) == -1) {
++    if (qio_channel_write_all(QIO_CHANNEL(disk->socket), (char*) &server_req, sizeof(server_req), NULL) == -1) {
+         socket_alive = false;
+     }
+ 
+     if (socket_alive) {
+-        if (qio_channel_read_all(QIO_CHANNEL(disk->socket), &server_res, sizeof(server_res), NULL) == -1) {
++        if (qio_channel_read_all(QIO_CHANNEL(disk->socket), (char*) &server_res, sizeof(server_res), NULL) == -1) {
+             socket_alive = false;
+         }
+ 
+@@ -505,7 +503,7 @@ static void test_disk_realize(SCSIDevice* scsi_dev, Error** errp) {
+ // ============================================================================
+ 
+ 
+-static void test_disk_class_init(ObjectClass* klass, const void* data) {
++static void test_disk_class_init(ObjectClass* klass, void* data) {
+     DeviceClass* dc = DEVICE_CLASS(klass);
+     SCSIDeviceClass* sc = SCSI_DEVICE_CLASS(klass);
  
 -- 
 2.53.0
