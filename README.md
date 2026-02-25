@@ -84,7 +84,7 @@ make
 -drive file=build/os.qcow2,format=qcow2,if=none,id=drive_os \
 -device scsi-hd,drive=drive_os,bus=scsi0.0,bootindex=0 \
 -drive file=build/test.qcow2,format=qcow2,if=none,id=drive_test \
--device test_disk,drive=drive_test,bus=scsi0.0,disk-id=0
+-device test_disk,drive=drive_test,bus=scsi0.0,disk-id=0,latency-stop-vm=true
 ```
 
 ## Использование диска в гостевой ОС

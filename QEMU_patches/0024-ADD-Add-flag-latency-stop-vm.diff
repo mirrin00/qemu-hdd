@@ -1,0 +1,50 @@
+diff --git a/hw/scsi/test_disk.c b/hw/scsi/test_disk.c
+index dcddf9f9bb..dfb1d5b5d3 100644
+--- a/hw/scsi/test_disk.c
++++ b/hw/scsi/test_disk.c
+@@ -16,7 +16,8 @@
+ // Device properties
+ static Property test_disk_properties[] = {
+     DEFINE_BLOCK_PROPERTIES(TestDisk, parent_scsi_dev.conf),
+-    DEFINE_PROP_UINT8("disk-id", TestDisk, id, 0)
++    DEFINE_PROP_UINT8("disk-id", TestDisk, id, 0),
++    DEFINE_PROP_BOOL("latency-stop-vm", TestDisk, stop_vm, true)
+ };
+ 
+ 
+@@ -335,7 +336,9 @@ static void test_disk_bh_routine(void* opaque) {
+         disk->socket_watcher_tag = 0;
+     }
+ 
+-    vm_stop(RUN_STATE_PAUSED); // ii. pause vm
++    if (disk->stop_vm) {
++        vm_stop(RUN_STATE_PAUSED); // ii. pause vm
++    }
+ 
+     ServerRequest server_req = {
+         .source = SOURCE_TEST_DISK,
+@@ -367,7 +370,9 @@ static void test_disk_bh_routine(void* opaque) {
+         qio_channel_set_blocking(QIO_CHANNEL(disk->socket), false, NULL); // iii. set socket blocking false
+     }
+ 
+-    vm_start(); // ii. start vm
++    if (disk->stop_vm) {
++        vm_start(); // ii. start vm
++    }
+ 
+     if (socket_alive) {
+         disk->socket_watcher_tag = qio_channel_add_watch(QIO_CHANNEL(disk->socket), G_IO_IN | G_IO_HUP | G_IO_ERR, test_disk_socket_watch, disk, NULL); // i. add watcher
+diff --git a/hw/scsi/test_disk.h b/hw/scsi/test_disk.h
+index 0e60ec71e8..c55d30ca92 100644
+--- a/hw/scsi/test_disk.h
++++ b/hw/scsi/test_disk.h
+@@ -18,6 +18,8 @@ struct TestDisk {
+     QEMUTimer* socket_connect_timer;
+     bool connecting;
+     guint socket_watcher_tag;
++
++    bool stop_vm;
+ };
+ 
+ #endif //HW_SCSI_TEST_DISK_H
+\ No newline at end of file
