@@ -1,7 +1,7 @@
 From 7ca343c91fd44cc992a8785fc2cc6270f71bca21 Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Tue, 13 Jan 2026 19:53:51 +0300
-Subject: [PATCH 01/24] Add test scsi disk
+Subject: [PATCH 01/25] Add test scsi disk
 
 ---
  .gitignore                  |  1 +
@@ -123,7 +123,7 @@ index 0000000000..be2f7ccbd3
 From 77eca0c9efe909535da6ae02e14e94bd241075a4 Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Thu, 15 Jan 2026 18:12:16 +0300
-Subject: [PATCH 02/24] Add basic request handling
+Subject: [PATCH 02/25] Add basic request handling
 
 ---
  hw/scsi/test_disk.c         | 104 +++++++++++++++++++++++++++++++++++-
@@ -279,7 +279,7 @@ index be2f7ccbd3..ac9e278372 100644
 From 011fd427f23cd142f639d7ceb926fb7e9651115e Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Tue, 20 Jan 2026 20:24:58 +0300
-Subject: [PATCH 03/24] Add socket connection with server
+Subject: [PATCH 03/25] Add socket connection with server
 
 ---
  hw/scsi/test_disk.c         | 72 +++++++++++++++++++++++++------------
@@ -457,7 +457,7 @@ index ac9e278372..c6a07db5dd 100644
 From ec529fae9d439c122d91c638a8cd7572d396dde6 Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Wed, 21 Jan 2026 20:00:40 +0300
-Subject: [PATCH 04/24] Add read command handler with delay
+Subject: [PATCH 04/25] Add read command handler with delay
 
 ---
  hw/scsi/test_disk.c | 69 ++++++++++++++++++++++++++++++++++++++++++---
@@ -592,7 +592,7 @@ index 01481301fa..a4bf98bf5f 100644
 From aba4962aeafcc3212ba53748d2f3ceb7c387a662 Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Thu, 22 Jan 2026 18:37:00 +0300
-Subject: [PATCH 05/24] Add ability to set constants
+Subject: [PATCH 05/25] Add ability to set constants
 
 ---
  hw/scsi/test_disk.c         | 47 +++++++++++++++++++++++++++++--------
@@ -725,7 +725,7 @@ index c6a07db5dd..a86908d965 100644
 From 68c86c37cf64c8d4850da4852bac4c9947222feb Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Fri, 23 Jan 2026 01:28:47 +0300
-Subject: [PATCH 06/24] Reafactor + async socket connection and reconnection
+Subject: [PATCH 06/25] Reafactor + async socket connection and reconnection
  mechanism
 
 ---
@@ -1221,7 +1221,7 @@ index a86908d965..568f975961 100644
 From 9b185b32fd75b77a5c6ba1fcceafe34f145e85ec Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Fri, 23 Jan 2026 12:55:40 +0300
-Subject: [PATCH 07/24] Minor refactoring
+Subject: [PATCH 07/25] Minor refactoring
 
 ---
  hw/scsi/test_disk.c | 23 +++++------------------
@@ -1318,7 +1318,7 @@ index 568f975961..91aecea9b1 100644
 From 1c47bf51331d7526074c84b85dd5dd3db0988c22 Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Fri, 23 Jan 2026 16:12:43 +0300
-Subject: [PATCH 08/24] Add socket disconnection watcher
+Subject: [PATCH 08/25] Add socket disconnection watcher
 
 ---
  hw/scsi/test_disk.c | 47 +++++++++++++++++++++++++++++++++++++++++++--
@@ -1432,7 +1432,7 @@ index 91aecea9b1..1a9c70eacf 100644
 From b23673d900254f3e270cde84a03902de855db79f Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Sun, 25 Jan 2026 13:14:46 +0300
-Subject: [PATCH 09/24] Move server to contrib folder
+Subject: [PATCH 09/25] Move server to contrib folder
 
 ---
  .gitignore                              |  2 +-
@@ -1560,7 +1560,7 @@ index 0000000000..73808f620f
 From 6d178a2e61d30902b24739daddf22ddd968f6b4c Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Sun, 25 Jan 2026 19:33:53 +0300
-Subject: [PATCH 10/24] Update server
+Subject: [PATCH 10/25] Update server
 
 ---
  contrib/test_disk-server/server.cpp | 35 +++++++++++++----------------
@@ -1657,7 +1657,7 @@ index 73808f620f..7cca000034 100644
 From f5ced68344de677aeff619de00afc3bfbffc114e Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Sun, 25 Jan 2026 19:36:53 +0300
-Subject: [PATCH 11/24] Change logic of acquiring latency value from server
+Subject: [PATCH 11/25] Change logic of acquiring latency value from server
 
 ---
  hw/scsi/test_disk.c | 79 +++++++++++++++++++++++++++++++++++----------
@@ -1815,7 +1815,7 @@ index 1a9c70eacf..acc1285d62 100644
 From c767d313939dcf7d3cb25ac52de2073daf920d31 Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Tue, 27 Jan 2026 15:11:41 +0300
-Subject: [PATCH 12/24] Add WRITE command handling
+Subject: [PATCH 12/25] Add WRITE command handling
 
 ---
  hw/scsi/test_disk.c | 19 +++++++++++++------
@@ -1915,7 +1915,7 @@ index 4124631d23..216d38a394 100644
 From 8e08e1427aa1ebce20c6a96404c55ed2b4b6adc0 Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Tue, 27 Jan 2026 15:12:39 +0300
-Subject: [PATCH 13/24] Server: Add WRITE latency parameter
+Subject: [PATCH 13/25] Server: Add WRITE latency parameter
 
 ---
  contrib/test_disk-server/server.cpp | 13 +++++++------
@@ -1968,7 +1968,7 @@ index dca2d12727..65f3c59cc8 100644
 From 8ff4fd73462c44ac11b62adcdee287e6e50f4de2 Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Fri, 30 Jan 2026 20:58:46 +0300
-Subject: [PATCH 14/24] Remove unit_attention and MEDIUM_CHANGE call causing
+Subject: [PATCH 14/25] Remove unit_attention and MEDIUM_CHANGE call causing
  SEGFAULT
 
 ---
@@ -2071,7 +2071,7 @@ index acc1285d62..4ef28ee37a 100644
 From 77f760be6995bce8e053f77b1b0f3a274b2de339 Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Sun, 1 Feb 2026 15:52:46 +0300
-Subject: [PATCH 15/24] Use vm_stop() to freeze virtual machine
+Subject: [PATCH 15/25] Use vm_stop() to freeze virtual machine
 
 ---
  hw/scsi/test_disk.c | 144 +++++++++++++++++++++++++++-----------------
@@ -2277,7 +2277,7 @@ index 6ab9300711..3529ce1288 100644
 From 34b6fff56232dbab6ea53631f8503ac720bf04bf Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Sun, 1 Feb 2026 16:27:56 +0300
-Subject: [PATCH 16/24] Extend ServerRequest and ServerResponse structs
+Subject: [PATCH 16/25] Extend ServerRequest and ServerResponse structs
 
 ---
  contrib/test_disk-server/server.cpp |  8 ++++++--
@@ -2388,7 +2388,7 @@ index 4ef28ee37a..a2deee5318 100644
 From f61abc344b7035428ae4c8bb96645ff7f93079fc Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Thu, 5 Feb 2026 19:15:49 +0300
-Subject: [PATCH 17/24] Improve server logic and create a toolkit
+Subject: [PATCH 17/25] Improve server logic and create a toolkit
 
 ---
  contrib/test_disk-server/CMakeLists.txt       |  21 +++
@@ -2714,7 +2714,7 @@ index 0000000000..6d9845f770
 From e1096412f16601f37c0241bc1dcc792e52f467c5 Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Fri, 6 Feb 2026 18:03:32 +0300
-Subject: [PATCH 18/24] Minor server refactoring
+Subject: [PATCH 18/25] Minor server refactoring
 
 ---
  contrib/test_disk-server/change_parameters.cpp | 11 ++++++++++-
@@ -2762,7 +2762,7 @@ index 2e095a0389..3f703bd4f0 100644
 From 787ee6fe621e6202922bf34b2bd967956a117a7f Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Fri, 6 Feb 2026 18:05:04 +0300
-Subject: [PATCH 19/24] Add python bindings
+Subject: [PATCH 19/25] Add python bindings
 
 ---
  contrib/test_disk-server/CMakeLists.txt       | 27 ++++++++++-
@@ -2997,7 +2997,7 @@ index 6d9845f770..04f9cf6952 100644
 From 849824b4db294c7d24539ffb83528c472d49fe3c Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Sat, 7 Feb 2026 13:59:26 +0300
-Subject: [PATCH 20/24] Minor changes
+Subject: [PATCH 20/25] Minor changes
 
 ---
  hw/scsi/test_disk.c | 25 ++++++++++++++++---------
@@ -3097,7 +3097,7 @@ index 37403eda0d..0c80ca6201 100644
 From 62cc2b1c753c9ec89a8338423ab9c1cbb9387a30 Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Sat, 7 Feb 2026 15:39:31 +0300
-Subject: [PATCH 21/24] Add python server
+Subject: [PATCH 21/25] Add python server
 
 ---
  contrib/test_disk-server/change_parameters.py |  7 +++++
@@ -3162,7 +3162,7 @@ index 0000000000..55997c1fc2
 From 2165e3d6b793e87dd7bca585ca4d9b1d29e4cc1a Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Mon, 16 Feb 2026 18:16:50 +0300
-Subject: [PATCH 22/24] Use BlockBackend
+Subject: [PATCH 22/25] Use BlockBackend
 
 ---
  hw/scsi/test_disk.c | 151 +++++++++++++++++++++++++++++++++++---------
@@ -3460,7 +3460,7 @@ index a2deee5318..0e60ec71e8 100644
 From 18a0a47f7bb96c86980d403ee055b7945c8b6311 Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Tue, 24 Feb 2026 20:10:49 +0300
-Subject: [PATCH 23/24] [FIX] Fix for QEMU v9.1.0
+Subject: [PATCH 23/25] [FIX] Fix for QEMU v9.1.0
 
 ---
  hw/scsi/test_disk.c | 16 +++++++---------
@@ -3525,7 +3525,7 @@ index 8f6c1a1857..dcddf9f9bb 100644
 From 0fc0f361873f6d3fe2827733b6933dfab4cee73f Mon Sep 17 00:00:00 2001
 From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
 Date: Wed, 25 Feb 2026 22:43:52 +0300
-Subject: [PATCH 24/24] [ADD] Add flag 'latency-stop-vm'
+Subject: [PATCH 24/25] [ADD] Add flag 'latency-stop-vm'
 
 ---
  hw/scsi/test_disk.c | 11 ++++++++---
@@ -3582,6 +3582,333 @@ index 0e60ec71e8..c55d30ca92 100644
  
  #endif //HW_SCSI_TEST_DISK_H
 \ No newline at end of file
+-- 
+2.53.0
+
+
+From 0f3d88e09d7ba4e448f6aefb0d1e1290779464eb Mon Sep 17 00:00:00 2001
+From: Kirill Karpunin <kirill.karpunin20014@gmail.com>
+Date: Thu, 26 Feb 2026 19:03:35 +0300
+Subject: [PATCH 25/25] [ADD] Add logic for using error code received from
+ server
+
+---
+ .../test_disk-server/change_parameters.cpp    | 21 ++++++++++++++++---
+ contrib/test_disk-server/change_parameters.py | 12 ++++++++---
+ contrib/test_disk-server/server.cpp           | 18 ++++++++++++++--
+ contrib/test_disk-server/server.py            | 14 ++++++++++++-
+ .../server_toolkit/bindings.cpp               | 11 ++++++++--
+ .../server_toolkit/server_toolkit.cpp         | 12 ++++++++---
+ .../server_toolkit/server_toolkit.h           |  2 +-
+ contrib/test_disk-server/structs.h            | 10 ++++++++-
+ hw/scsi/test_disk.c                           | 13 ++++++++++++
+ 9 files changed, 97 insertions(+), 16 deletions(-)
+
+diff --git a/contrib/test_disk-server/change_parameters.cpp b/contrib/test_disk-server/change_parameters.cpp
+index 3cefe8a805..48463c99af 100644
+--- a/contrib/test_disk-server/change_parameters.cpp
++++ b/contrib/test_disk-server/change_parameters.cpp
+@@ -4,11 +4,26 @@
+ 
+ int main() {
+     uint32_t read_latency_ms, write_latency_ms;
++    ErrorCode error_code;
+ 
+-    std::cout << "Read latency: ";
++    std::cout << "Read latency (ms): ";
+     std::cin >> read_latency_ms;
+-    std::cout << "Write latency: ";
++    std::cout << "Write latency (ms): ";
+     std::cin >> write_latency_ms;
+ 
+-    change_server_parameters("127.0.0.1", 31234, read_latency_ms, write_latency_ms);
++    int t;
++
++    std::cout << "Sense key (in hex): ";
++    std::cin >> std::hex >> t;
++    error_code.key = static_cast<uint8_t>(t);
++
++    std::cout << "ASC (in hex): ";
++    std::cin >> std::hex >> t;
++    error_code.asc = static_cast<uint8_t>(t);
++
++    std::cout << "ASCQ (in hex): ";
++    std::cin >> std::hex >> t;
++    error_code.ascq = static_cast<uint8_t>(t);
++
++    change_server_parameters("127.0.0.1", 31234, read_latency_ms, write_latency_ms, error_code);
+ }
+\ No newline at end of file
+diff --git a/contrib/test_disk-server/change_parameters.py b/contrib/test_disk-server/change_parameters.py
+index 57e4256266..0f34e07ea8 100644
+--- a/contrib/test_disk-server/change_parameters.py
++++ b/contrib/test_disk-server/change_parameters.py
+@@ -1,7 +1,13 @@
+ import server_toolkit_py as st
+ 
+ if __name__ == "__main__":
+-    read_latency_ms = int(input("Read latency: "))
+-    write_latency_ms = int(input("Write latency: "))
++    read_latency_ms = int(input("Read latency (ms): "))
++    write_latency_ms = int(input("Write latency (ms): "))
+ 
+-    st.change_server_parameters("127.0.0.1", 31234, read_latency_ms, write_latency_ms)
+\ No newline at end of file
++    error_code = st.ErrorCode()
++
++    error_code.key = int(input("Sense key (in hex): "), 16)
++    error_code.asc = int(input("ASC (in hex): "), 16)
++    error_code.ascq = int(input("ASCQ (in hex): "), 16)
++
++    st.change_server_parameters("127.0.0.1", 31234, read_latency_ms, write_latency_ms, error_code)
+diff --git a/contrib/test_disk-server/server.cpp b/contrib/test_disk-server/server.cpp
+index 3f703bd4f0..e61ead5aa4 100644
+--- a/contrib/test_disk-server/server.cpp
++++ b/contrib/test_disk-server/server.cpp
+@@ -11,8 +11,12 @@ int main() {
+         return -1;
+     }
+ 
+-    std::atomic<uint32_t> read_latency_ms = 34;
+-    std::atomic<uint32_t> write_latency_ms = 7;
++    std::atomic<uint32_t> read_latency_ms = 0;
++    std::atomic<uint32_t> write_latency_ms = 0;
++
++    std::atomic<uint8_t> sense_key = 0;
++    std::atomic<uint8_t> asc = 0;
++    std::atomic<uint8_t> ascq = 0;
+ 
+     run_server(server_fd, [&](const ServerRequest& server_req) {
+         ServerResponse server_res{};
+@@ -21,6 +25,11 @@ int main() {
+             case SOURCE_CHANGE_PARAMETERS:
+                 read_latency_ms = server_req.change_parameters_payload.read_latency_ms;
+                 write_latency_ms = server_req.change_parameters_payload.write_latency_ms;
++
++                sense_key = server_req.change_parameters_payload.error_code.key;
++                asc = server_req.change_parameters_payload.error_code.asc;
++                ascq = server_req.change_parameters_payload.error_code.ascq;
++
+                 break;
+             case SOURCE_TEST_DISK:
+                 std::cout << std::format("Command: 0x{:02x}", server_req.test_disk_payload.command) << std::endl;
+@@ -29,6 +38,11 @@ int main() {
+                     server_req.test_disk_payload.command == 0x28 || server_req.test_disk_payload.command == 0x08
+                     ? read_latency_ms
+                     : write_latency_ms;
++
++                server_res.error_code.key = sense_key;
++                server_res.error_code.asc = asc;
++                server_res.error_code.ascq = ascq;
++
+                 break;
+         }
+ 
+diff --git a/contrib/test_disk-server/server.py b/contrib/test_disk-server/server.py
+index 55997c1fc2..7e7ea48e3f 100644
+--- a/contrib/test_disk-server/server.py
++++ b/contrib/test_disk-server/server.py
+@@ -3,8 +3,12 @@
+ read_latency_ms = 0
+ write_latency_ms = 0
+ 
++sense_key = 0
++asc = 0
++ascq = 0
++
+ def callback(server_req: st.ServerRequest) -> st.ServerResponse:
+-    global read_latency_ms, write_latency_ms
++    global read_latency_ms, write_latency_ms, sense_key, asc, ascq
+ 
+     server_res = st.ServerResponse()
+ 
+@@ -12,6 +16,10 @@ def callback(server_req: st.ServerRequest) -> st.ServerResponse:
+         read_latency_ms = server_req.change_parameters_payload.read_latency_ms
+         write_latency_ms = server_req.change_parameters_payload.write_latency_ms
+ 
++        sense_key = server_req.change_parameters_payload.error_code.key
++        asc = server_req.change_parameters_payload.error_code.asc
++        ascq = server_req.change_parameters_payload.error_code.ascq
++
+     elif server_req.source == st.SOURCE_TEST_DISK:
+         print(f"Command: 0x{server_req.test_disk_payload.command:02X}")
+ 
+@@ -19,6 +27,10 @@ def callback(server_req: st.ServerRequest) -> st.ServerResponse:
+             if server_req.test_disk_payload.command == 0x28 or server_req.test_disk_payload.command == 0x08 \
+             else write_latency_ms
+ 
++        server_res.error_code.key = sense_key
++        server_res.error_code.asc = asc
++        server_res.error_code.ascq = ascq
++
+     return server_res
+ 
+ if __name__ == "__main__":
+diff --git a/contrib/test_disk-server/server_toolkit/bindings.cpp b/contrib/test_disk-server/server_toolkit/bindings.cpp
+index 29e04abc59..0d49cb6bd8 100644
+--- a/contrib/test_disk-server/server_toolkit/bindings.cpp
++++ b/contrib/test_disk-server/server_toolkit/bindings.cpp
+@@ -21,10 +21,17 @@ PYBIND11_MODULE(server_toolkit_py, m) {
+             .def_readwrite("sector", &TestDiskPayload::sector)
+             .def_readwrite("req_target_len", &TestDiskPayload::req_target_len);
+ 
++    py::class_<ErrorCode>(m, "ErrorCode")
++            .def(py::init<>())
++            .def_readwrite("key", &ErrorCode::key)
++            .def_readwrite("asc", &ErrorCode::asc)
++            .def_readwrite("ascq", &ErrorCode::ascq);
++
+     py::class_<ChangeParametersPayload>(m, "ChangeParametersPayload")
+             .def(py::init<>())
+             .def_readwrite("read_latency_ms", &ChangeParametersPayload::read_latency_ms)
+-            .def_readwrite("write_latency_ms", &ChangeParametersPayload::write_latency_ms);
++            .def_readwrite("write_latency_ms", &ChangeParametersPayload::write_latency_ms)
++            .def_readwrite("error_code", &ChangeParametersPayload::error_code);
+ 
+     py::class_<ServerRequest>(m, "ServerRequest")
+             .def(py::init<>())
+@@ -41,5 +48,5 @@ PYBIND11_MODULE(server_toolkit_py, m) {
+     // Functions
+     m.def("create_server", &create_server, "ip"_a, "port"_a);
+     m.def("run_server", &run_server, "server_fd"_a, "callback"_a, py::call_guard<py::gil_scoped_release>());
+-    m.def("change_server_parameters", &change_server_parameters, "ip"_a, "port"_a, "read_latency_ms"_a, "write_latency_ms"_a);
++    m.def("change_server_parameters", &change_server_parameters, "ip"_a, "port"_a, "read_latency_ms"_a, "write_latency_ms"_a, "error_code"_a);
+ }
+diff --git a/contrib/test_disk-server/server_toolkit/server_toolkit.cpp b/contrib/test_disk-server/server_toolkit/server_toolkit.cpp
+index 74e2822631..b83457a337 100644
+--- a/contrib/test_disk-server/server_toolkit/server_toolkit.cpp
++++ b/contrib/test_disk-server/server_toolkit/server_toolkit.cpp
+@@ -96,7 +96,9 @@ void _client_routine(int client_fd, const Callback& callback) {
+         if (send(client_fd, &server_res, sizeof(server_res), 0) == -1) {
+             std::cerr << "Unable to send response to client socket: " << strerror(errno) << std::endl;
+         } else {
+-            std::cout << "Sent: latency = " << server_res.latency << std::endl;
++            std::cout << "Sent: latency = " << server_res.latency
++            << ", error code = " << std::format("(0x{:02x}|0x{:02x}|0x{:02x})", server_res.error_code.key, server_res.error_code.asc, server_res.error_code.ascq)
++            << std::endl;
+         }
+     }
+ 
+@@ -107,7 +109,7 @@ void _client_routine(int client_fd, const Callback& callback) {
+ 
+ // ============================================================================
+ 
+-int change_server_parameters(const std::string& ip, uint16_t port, uint32_t read_latency_ms, uint32_t write_latency_ms) {
++int change_server_parameters(const std::string& ip, uint16_t port, uint32_t read_latency_ms, uint32_t write_latency_ms, ErrorCode error_code) {
+     // server address
+     sockaddr_in addr = {
+         .sin_family = AF_INET,
+@@ -139,13 +141,17 @@ int change_server_parameters(const std::string& ip, uint16_t port, uint32_t read
+         .change_parameters_payload = {
+             .read_latency_ms = read_latency_ms,
+             .write_latency_ms = write_latency_ms,
++            .error_code = error_code
+         }
+     };
+ 
+     if (send(fd, &server_req, sizeof(server_req), 0) == -1) {
+         std::cerr << "Unable to send request to client socket: " << strerror(errno) << std::endl;
+     } else {
+-        std::cout << "Sent: read_latency_ms = " << read_latency_ms << ", write_latency_ms = " << write_latency_ms << std::endl;
++        std::cout << "Sent: read_latency_ms = " << read_latency_ms
++        << ", write_latency_ms = " << write_latency_ms
++        << ", error code = " << std::format("(0x{:02x}|0x{:02x}|0x{:02x})", server_req.change_parameters_payload.error_code.key, server_req.change_parameters_payload.error_code.asc, server_req.change_parameters_payload.error_code.ascq)
++        << std::endl;
+     }
+ 
+     close(fd);
+diff --git a/contrib/test_disk-server/server_toolkit/server_toolkit.h b/contrib/test_disk-server/server_toolkit/server_toolkit.h
+index 04f9cf6952..87010f6d27 100644
+--- a/contrib/test_disk-server/server_toolkit/server_toolkit.h
++++ b/contrib/test_disk-server/server_toolkit/server_toolkit.h
+@@ -15,6 +15,6 @@ int run_server(int server_fd, const Callback& callback);
+ 
+ void _client_routine(int client_fd, const Callback& callback);
+ 
+-int change_server_parameters(const std::string& ip, uint16_t port, uint32_t read_latency_ms, uint32_t write_latency_ms);
++int change_server_parameters(const std::string& ip, uint16_t port, uint32_t read_latency_ms, uint32_t write_latency_ms, ErrorCode error_code);
+ 
+ #endif //SERVER_H
+diff --git a/contrib/test_disk-server/structs.h b/contrib/test_disk-server/structs.h
+index 14b180cc18..c94905d678 100644
+--- a/contrib/test_disk-server/structs.h
++++ b/contrib/test_disk-server/structs.h
+@@ -4,6 +4,12 @@
+ #define SOURCE_TEST_DISK 1
+ #define SOURCE_CHANGE_PARAMETERS 2
+ 
++typedef struct ErrorCode {
++    uint8_t key;
++    uint8_t asc;
++    uint8_t ascq;
++} ErrorCode;
++
+ typedef struct TestDiskPayload {
+     uint8_t disk_id;
+     uint8_t command;
+@@ -14,6 +20,8 @@ typedef struct TestDiskPayload {
+ typedef struct ChangeParametersPayload {
+     uint32_t read_latency_ms;
+     uint32_t write_latency_ms;
++
++    ErrorCode error_code;
+ } ChangeParametersPayload;
+ 
+ typedef struct ServerRequest {
+@@ -23,7 +31,7 @@ typedef struct ServerRequest {
+ } ServerRequest;
+ 
+ typedef struct ServerResponse {
+-    uint8_t error_code;
++    ErrorCode error_code;
+     uint32_t latency;
+ } ServerResponse;
+ 
+diff --git a/hw/scsi/test_disk.c b/hw/scsi/test_disk.c
+index dfb1d5b5d3..92d731683a 100644
+--- a/hw/scsi/test_disk.c
++++ b/hw/scsi/test_disk.c
+@@ -6,6 +6,7 @@
+ #include "qapi/error.h"
+ #include "scsi/constants.h"
+ #include "contrib/test_disk-server/structs.h"
++#include "qapi/qapi-types-common.h"
+ #include "sysemu/block-backend.h"
+ #include "sysemu/cpu-timers.h"
+ #include "sysemu/runstate.h"
+@@ -31,6 +32,8 @@ typedef struct TestDiskReq {
+ 
+     struct iovec iov;
+     QEMUIOVector qiov;
++
++    SCSISense current_error_code;
+ } TestDiskReq;
+ 
+ 
+@@ -395,6 +398,10 @@ static void test_disk_bh_routine(void* opaque) {
+ 
+     disk_req->response_buf_len = args->req_target_len;
+ 
++    disk_req->current_error_code.key = server_res.error_code.key;
++    disk_req->current_error_code.asc = server_res.error_code.asc;
++    disk_req->current_error_code.ascq = server_res.error_code.ascq;
++
+     timer_mod(disk_req->timer, qemu_clock_get_ms(QEMU_CLOCK_VIRTUAL) + latency_ms);
+ 
+     scsi_req_unref(scsi_req);
+@@ -405,6 +412,12 @@ static void test_disk_latency_callback(void* opaque) {
+     TestDiskReq* disk_req = opaque;
+     SCSIRequest* scsi_req = &disk_req->parent_scsi_req;
+ 
++    if ((disk_req->current_error_code.key | disk_req->current_error_code.asc | disk_req->current_error_code.ascq) != 0) {
++        scsi_req_build_sense(scsi_req, disk_req->current_error_code);
++        scsi_req_complete(scsi_req, CHECK_CONDITION);
++        return;
++    }
++
+     TestDisk* disk = DO_UPCAST(TestDisk, parent_scsi_dev, disk_req->parent_scsi_req.dev);
+     BlockBackend *blk = disk->parent_scsi_dev.conf.blk;
+ 
 -- 
 2.53.0
 
