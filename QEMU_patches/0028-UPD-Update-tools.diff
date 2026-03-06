@@ -1,0 +1,124 @@
+diff --git a/contrib/test_disk-server/change_parameters.cpp b/contrib/test_disk-server/change_parameters.cpp
+index 48463c99af..e27c75b81c 100644
+--- a/contrib/test_disk-server/change_parameters.cpp
++++ b/contrib/test_disk-server/change_parameters.cpp
+@@ -25,5 +25,10 @@ int main() {
+     std::cin >> std::hex >> t;
+     error_code.ascq = static_cast<uint8_t>(t);
+ 
+-    change_server_parameters("127.0.0.1", 31234, read_latency_ms, write_latency_ms, error_code);
++    bool is_singleshot;
++
++    std::cout << "Is singleshot (0 - false, 1 - true): ";
++    std::cin >> is_singleshot;
++
++    change_server_parameters("127.0.0.1", 31234, read_latency_ms, write_latency_ms, error_code, is_singleshot);
+ }
+\ No newline at end of file
+diff --git a/contrib/test_disk-server/change_parameters.py b/contrib/test_disk-server/change_parameters.py
+index 0f34e07ea8..ffe5736745 100644
+--- a/contrib/test_disk-server/change_parameters.py
++++ b/contrib/test_disk-server/change_parameters.py
+@@ -10,4 +10,6 @@
+     error_code.asc = int(input("ASC (in hex): "), 16)
+     error_code.ascq = int(input("ASCQ (in hex): "), 16)
+ 
+-    st.change_server_parameters("127.0.0.1", 31234, read_latency_ms, write_latency_ms, error_code)
++    is_singleshot = bool(input("Is singleshot (0 - false, 1 - true): "))
++
++    st.change_server_parameters("127.0.0.1", 31234, read_latency_ms, write_latency_ms, error_code, is_singleshot)
+diff --git a/contrib/test_disk-server/server.cpp b/contrib/test_disk-server/server.cpp
+index e61ead5aa4..8496b77521 100644
+--- a/contrib/test_disk-server/server.cpp
++++ b/contrib/test_disk-server/server.cpp
+@@ -18,6 +18,12 @@ int main() {
+     std::atomic<uint8_t> asc = 0;
+     std::atomic<uint8_t> ascq = 0;
+ 
++    std::atomic<bool> is_singleshot = false;
++
++    std::atomic<uint8_t> prev_sense_key = 0;
++    std::atomic<uint8_t> prev_asc = 0;
++    std::atomic<uint8_t> prev_ascq = 0;
++
+     run_server(server_fd, [&](const ServerRequest& server_req) {
+         ServerResponse server_res{};
+ 
+@@ -26,6 +32,14 @@ int main() {
+                 read_latency_ms = server_req.change_parameters_payload.read_latency_ms;
+                 write_latency_ms = server_req.change_parameters_payload.write_latency_ms;
+ 
++                if (server_req.change_parameters_payload.is_singleshot) {
++                    is_singleshot = true;
++
++                    prev_sense_key = sense_key.load();
++                    prev_asc = asc.load();
++                    prev_ascq = ascq.load();
++                }
++
+                 sense_key = server_req.change_parameters_payload.error_code.key;
+                 asc = server_req.change_parameters_payload.error_code.asc;
+                 ascq = server_req.change_parameters_payload.error_code.ascq;
+@@ -43,6 +57,14 @@ int main() {
+                 server_res.error_code.asc = asc;
+                 server_res.error_code.ascq = ascq;
+ 
++                if (is_singleshot) {
++                    is_singleshot = false;
++
++                    sense_key = prev_sense_key.load();
++                    asc = prev_asc.load();
++                    ascq = prev_ascq.load();
++                }
++
+                 break;
+         }
+ 
+diff --git a/contrib/test_disk-server/server.py b/contrib/test_disk-server/server.py
+index 7e7ea48e3f..be3d19676b 100644
+--- a/contrib/test_disk-server/server.py
++++ b/contrib/test_disk-server/server.py
+@@ -7,8 +7,14 @@
+ asc = 0
+ ascq = 0
+ 
++is_singleshot = False
++
++prev_sense_key = 0
++prev_asc = 0
++prev_ascq = 0
++
+ def callback(server_req: st.ServerRequest) -> st.ServerResponse:
+-    global read_latency_ms, write_latency_ms, sense_key, asc, ascq
++    global read_latency_ms, write_latency_ms, sense_key, asc, ascq, is_singleshot, prev_sense_key, prev_asc, prev_ascq
+ 
+     server_res = st.ServerResponse()
+ 
+@@ -16,6 +22,13 @@ def callback(server_req: st.ServerRequest) -> st.ServerResponse:
+         read_latency_ms = server_req.change_parameters_payload.read_latency_ms
+         write_latency_ms = server_req.change_parameters_payload.write_latency_ms
+ 
++        if server_req.change_parameters_payload.is_singleshot:
++            is_singleshot = True
++
++            prev_sense_key = sense_key
++            prev_asc = asc
++            prev_ascq = ascq
++
+         sense_key = server_req.change_parameters_payload.error_code.key
+         asc = server_req.change_parameters_payload.error_code.asc
+         ascq = server_req.change_parameters_payload.error_code.ascq
+@@ -31,6 +44,13 @@ def callback(server_req: st.ServerRequest) -> st.ServerResponse:
+         server_res.error_code.asc = asc
+         server_res.error_code.ascq = ascq
+ 
++        if is_singleshot:
++            is_singleshot = False
++
++            sense_key = prev_sense_key
++            asc = prev_asc
++            ascq = prev_ascq
++
+     return server_res
+ 
+ if __name__ == "__main__":
