@@ -1,0 +1,93 @@
+diff --git a/contrib/test_disk-server/server_toolkit/bindings.cpp b/contrib/test_disk-server/server_toolkit/bindings.cpp
+index 0d49cb6bd8..90137878f1 100644
+--- a/contrib/test_disk-server/server_toolkit/bindings.cpp
++++ b/contrib/test_disk-server/server_toolkit/bindings.cpp
+@@ -31,6 +31,7 @@ PYBIND11_MODULE(server_toolkit_py, m) {
+             .def(py::init<>())
+             .def_readwrite("read_latency_ms", &ChangeParametersPayload::read_latency_ms)
+             .def_readwrite("write_latency_ms", &ChangeParametersPayload::write_latency_ms)
++            .def_readwrite("is_singleshot", &ChangeParametersPayload::is_singleshot)
+             .def_readwrite("error_code", &ChangeParametersPayload::error_code);
+ 
+     py::class_<ServerRequest>(m, "ServerRequest")
+@@ -48,5 +49,5 @@ PYBIND11_MODULE(server_toolkit_py, m) {
+     // Functions
+     m.def("create_server", &create_server, "ip"_a, "port"_a);
+     m.def("run_server", &run_server, "server_fd"_a, "callback"_a, py::call_guard<py::gil_scoped_release>());
+-    m.def("change_server_parameters", &change_server_parameters, "ip"_a, "port"_a, "read_latency_ms"_a, "write_latency_ms"_a, "error_code"_a);
++    m.def("change_server_parameters", &change_server_parameters, "ip"_a, "port"_a, "read_latency_ms"_a, "write_latency_ms"_a, "error_code"_a, "is_singleshot"_a = false);
+ }
+diff --git a/contrib/test_disk-server/server_toolkit/server_toolkit.cpp b/contrib/test_disk-server/server_toolkit/server_toolkit.cpp
+index b83457a337..8ee18a283c 100644
+--- a/contrib/test_disk-server/server_toolkit/server_toolkit.cpp
++++ b/contrib/test_disk-server/server_toolkit/server_toolkit.cpp
+@@ -95,10 +95,16 @@ void _client_routine(int client_fd, const Callback& callback) {
+ 
+         if (send(client_fd, &server_res, sizeof(server_res), 0) == -1) {
+             std::cerr << "Unable to send response to client socket: " << strerror(errno) << std::endl;
+-        } else {
++        } else if (server_req.source == SOURCE_TEST_DISK) {
+             std::cout << "Sent: latency = " << server_res.latency
+             << ", error code = " << std::format("(0x{:02x}|0x{:02x}|0x{:02x})", server_res.error_code.key, server_res.error_code.asc, server_res.error_code.ascq)
+             << std::endl;
++        } else if (server_req.source == SOURCE_CHANGE_PARAMETERS) {
++            std::cout << "Parameters changed: read_latency_ms = " << server_req.change_parameters_payload.read_latency_ms
++            << ", write_latency_ms = " << server_req.change_parameters_payload.write_latency_ms
++            << ", error code = " << std::format("(0x{:02x}|0x{:02x}|0x{:02x})", server_req.change_parameters_payload.error_code.key, server_req.change_parameters_payload.error_code.asc, server_req.change_parameters_payload.error_code.ascq)
++            << ", is singleshot = " << static_cast<int>(server_req.change_parameters_payload.is_singleshot)
++            << std::endl;
+         }
+     }
+ 
+@@ -109,7 +115,7 @@ void _client_routine(int client_fd, const Callback& callback) {
+ 
+ // ============================================================================
+ 
+-int change_server_parameters(const std::string& ip, uint16_t port, uint32_t read_latency_ms, uint32_t write_latency_ms, ErrorCode error_code) {
++int change_server_parameters(const std::string& ip, uint16_t port, uint32_t read_latency_ms, uint32_t write_latency_ms, ErrorCode error_code, bool is_singleshot) {
+     // server address
+     sockaddr_in addr = {
+         .sin_family = AF_INET,
+@@ -141,6 +147,7 @@ int change_server_parameters(const std::string& ip, uint16_t port, uint32_t read
+         .change_parameters_payload = {
+             .read_latency_ms = read_latency_ms,
+             .write_latency_ms = write_latency_ms,
++            .is_singleshot = is_singleshot,
+             .error_code = error_code
+         }
+     };
+@@ -150,7 +157,8 @@ int change_server_parameters(const std::string& ip, uint16_t port, uint32_t read
+     } else {
+         std::cout << "Sent: read_latency_ms = " << read_latency_ms
+         << ", write_latency_ms = " << write_latency_ms
+-        << ", error code = " << std::format("(0x{:02x}|0x{:02x}|0x{:02x})", server_req.change_parameters_payload.error_code.key, server_req.change_parameters_payload.error_code.asc, server_req.change_parameters_payload.error_code.ascq)
++        << ", error code = " << std::format("(0x{:02x}|0x{:02x}|0x{:02x})", error_code.key, error_code.asc, error_code.ascq)
++        << ", is singleshot = " << static_cast<int>(is_singleshot)
+         << std::endl;
+     }
+ 
+diff --git a/contrib/test_disk-server/server_toolkit/server_toolkit.h b/contrib/test_disk-server/server_toolkit/server_toolkit.h
+index 87010f6d27..d177998c38 100644
+--- a/contrib/test_disk-server/server_toolkit/server_toolkit.h
++++ b/contrib/test_disk-server/server_toolkit/server_toolkit.h
+@@ -15,6 +15,6 @@ int run_server(int server_fd, const Callback& callback);
+ 
+ void _client_routine(int client_fd, const Callback& callback);
+ 
+-int change_server_parameters(const std::string& ip, uint16_t port, uint32_t read_latency_ms, uint32_t write_latency_ms, ErrorCode error_code);
++int change_server_parameters(const std::string& ip, uint16_t port, uint32_t read_latency_ms, uint32_t write_latency_ms, ErrorCode error_code, bool is_singleshot = false);
+ 
+ #endif //SERVER_H
+diff --git a/contrib/test_disk-server/structs.h b/contrib/test_disk-server/structs.h
+index c94905d678..4283505673 100644
+--- a/contrib/test_disk-server/structs.h
++++ b/contrib/test_disk-server/structs.h
+@@ -21,6 +21,8 @@ typedef struct ChangeParametersPayload {
+     uint32_t read_latency_ms;
+     uint32_t write_latency_ms;
+ 
++    bool is_singleshot;
++
+     ErrorCode error_code;
+ } ChangeParametersPayload;
+ 
