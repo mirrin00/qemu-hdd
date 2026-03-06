@@ -1,0 +1,13 @@
+diff --git a/hw/scsi/test_disk.c b/hw/scsi/test_disk.c
+index 92d731683a..4adcbcc8ce 100644
+--- a/hw/scsi/test_disk.c
++++ b/hw/scsi/test_disk.c
+@@ -11,7 +11,7 @@
+ #include "sysemu/cpu-timers.h"
+ #include "sysemu/runstate.h"
+ 
+-#define MAX_XFER_SIZE (1 * 1024 * 1024)
++#define MAX_XFER_SIZE (32 * 1024 * 1024)
+ 
+ 
+ // Device properties
