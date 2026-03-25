@@ -1,0 +1,14 @@
+diff --git a/hw/scsi/test_disk.c b/hw/scsi/test_disk.c
+index 4adcbcc8ce..9b1a48a493 100644
+--- a/hw/scsi/test_disk.c
++++ b/hw/scsi/test_disk.c
+@@ -346,7 +346,8 @@ static void test_disk_bh_routine(void* opaque) {
+     ServerRequest server_req = {
+         .source = SOURCE_TEST_DISK,
+         .test_disk_payload.disk_id = disk->id,
+-        .test_disk_payload.command = args->command
++        .test_disk_payload.command = args->command,
++        .test_disk_payload.sector = scsi_req->cmd.lba
+     };
+     ServerResponse server_res;
+ 
