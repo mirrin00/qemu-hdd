@@ -1,0 +1,155 @@
+diff --git a/contrib/test_disk-server/change_parameters.cpp b/contrib/test_disk-server/change_parameters.cpp
+index e27c75b81c..a5ce66f64a 100644
+--- a/contrib/test_disk-server/change_parameters.cpp
++++ b/contrib/test_disk-server/change_parameters.cpp
+@@ -11,24 +11,39 @@ int main() {
+     std::cout << "Write latency (ms): ";
+     std::cin >> write_latency_ms;
+ 
++    std::cin >> std::hex;
++
+     int t;
+ 
+     std::cout << "Sense key (in hex): ";
+-    std::cin >> std::hex >> t;
++    std::cin >> t;
+     error_code.key = static_cast<uint8_t>(t);
+ 
+     std::cout << "ASC (in hex): ";
+-    std::cin >> std::hex >> t;
++    std::cin >> t;
+     error_code.asc = static_cast<uint8_t>(t);
+ 
+     std::cout << "ASCQ (in hex): ";
+-    std::cin >> std::hex >> t;
++    std::cin >> t;
+     error_code.ascq = static_cast<uint8_t>(t);
+ 
++    std::cin >> std::dec;
++
+     bool is_singleshot;
+ 
+     std::cout << "Is singleshot (0 - false, 1 - true): ";
+     std::cin >> is_singleshot;
+ 
+-    change_server_parameters("127.0.0.1", 31234, read_latency_ms, write_latency_ms, error_code, is_singleshot);
++    bool only_specified_sector;
++
++    std::cout << "Only specified sector (0 - false, 1 - true): ";
++    std::cin >> only_specified_sector;
++
++    uint64_t specified_sector = 0;
++    if (only_specified_sector) {
++        std::cout << "Sector: ";
++        std::cin >> specified_sector;
++    }
++
++    change_server_parameters("127.0.0.1", 31234, read_latency_ms, write_latency_ms, error_code, is_singleshot, only_specified_sector, specified_sector);
+ }
+\ No newline at end of file
+diff --git a/contrib/test_disk-server/change_parameters.py b/contrib/test_disk-server/change_parameters.py
+index ffe5736745..90b3b7db47 100644
+--- a/contrib/test_disk-server/change_parameters.py
++++ b/contrib/test_disk-server/change_parameters.py
+@@ -10,6 +10,12 @@
+     error_code.asc = int(input("ASC (in hex): "), 16)
+     error_code.ascq = int(input("ASCQ (in hex): "), 16)
+ 
+-    is_singleshot = bool(input("Is singleshot (0 - false, 1 - true): "))
++    is_singleshot = bool(int(input("Is singleshot (0 - false, 1 - true): ")))
+ 
+-    st.change_server_parameters("127.0.0.1", 31234, read_latency_ms, write_latency_ms, error_code, is_singleshot)
++    only_specified_sector = bool(int(input("Only specified sector (0 - false, 1 - true): ")))
++
++    specified_sector = 0
++    if only_specified_sector:
++        specified_sector = int(input("Sector: "))
++
++    st.change_server_parameters("127.0.0.1", 31234, read_latency_ms, write_latency_ms, error_code, is_singleshot, only_specified_sector, specified_sector)
+diff --git a/contrib/test_disk-server/server.cpp b/contrib/test_disk-server/server.cpp
+index 8496b77521..65fc26309c 100644
+--- a/contrib/test_disk-server/server.cpp
++++ b/contrib/test_disk-server/server.cpp
+@@ -24,6 +24,9 @@ int main() {
+     std::atomic<uint8_t> prev_asc = 0;
+     std::atomic<uint8_t> prev_ascq = 0;
+ 
++    std::atomic<bool> only_specified_sector = false;
++    std::atomic<uint64_t> specified_sector = 0;
++
+     run_server(server_fd, [&](const ServerRequest& server_req) {
+         ServerResponse server_res{};
+ 
+@@ -40,13 +43,29 @@ int main() {
+                     prev_ascq = ascq.load();
+                 }
+ 
++                only_specified_sector = server_req.change_parameters_payload.only_specified_sector;
++                specified_sector = server_req.change_parameters_payload.specified_sector;
++
+                 sense_key = server_req.change_parameters_payload.error_code.key;
+                 asc = server_req.change_parameters_payload.error_code.asc;
+                 ascq = server_req.change_parameters_payload.error_code.ascq;
+ 
+                 break;
+             case SOURCE_TEST_DISK:
+-                std::cout << std::format("Command: 0x{:02x}", server_req.test_disk_payload.command) << std::endl;
++                std::cout << std::format("Command: 0x{:02x}, sector: {}", server_req.test_disk_payload.command, server_req.test_disk_payload.sector) << std::endl;
++
++                if (only_specified_sector && server_req.test_disk_payload.sector != specified_sector) {
++                    server_res = {
++                        .error_code = {
++                            .key = 0,
++                            .asc = 0,
++                            .ascq = 0
++                        },
++                        .latency = 0
++                    };
++
++                    return server_res;
++                }
+ 
+                 server_res.latency =
+                     server_req.test_disk_payload.command == 0x28 || server_req.test_disk_payload.command == 0x08
+diff --git a/contrib/test_disk-server/server.py b/contrib/test_disk-server/server.py
+index be3d19676b..6df8db5117 100644
+--- a/contrib/test_disk-server/server.py
++++ b/contrib/test_disk-server/server.py
+@@ -13,8 +13,11 @@
+ prev_asc = 0
+ prev_ascq = 0
+ 
++only_specified_sector = False
++specified_sector = 0
++
+ def callback(server_req: st.ServerRequest) -> st.ServerResponse:
+-    global read_latency_ms, write_latency_ms, sense_key, asc, ascq, is_singleshot, prev_sense_key, prev_asc, prev_ascq
++    global read_latency_ms, write_latency_ms, sense_key, asc, ascq, is_singleshot, prev_sense_key, prev_asc, prev_ascq, only_specified_sector, specified_sector
+ 
+     server_res = st.ServerResponse()
+ 
+@@ -29,12 +32,23 @@ def callback(server_req: st.ServerRequest) -> st.ServerResponse:
+             prev_asc = asc
+             prev_ascq = ascq
+ 
++        only_specified_sector = server_req.change_parameters_payload.only_specified_sector
++        specified_sector = server_req.change_parameters_payload.specified_sector
++
+         sense_key = server_req.change_parameters_payload.error_code.key
+         asc = server_req.change_parameters_payload.error_code.asc
+         ascq = server_req.change_parameters_payload.error_code.ascq
+ 
+     elif server_req.source == st.SOURCE_TEST_DISK:
+-        print(f"Command: 0x{server_req.test_disk_payload.command:02X}")
++        print(f"Command: 0x{server_req.test_disk_payload.command:02X}, sector: {server_req.test_disk_payload.sector}")
++
++        if only_specified_sector and server_req.test_disk_payload.sector != specified_sector:
++            server_res.error_code.key = 0
++            server_res.error_code.asc = 0
++            server_res.error_code.ascq = 0
++            server_res.latency = 0
++
++            return server_res
+ 
+         server_res.latency = read_latency_ms \
+             if server_req.test_disk_payload.command == 0x28 or server_req.test_disk_payload.command == 0x08 \
