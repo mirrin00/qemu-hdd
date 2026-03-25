@@ -1,0 +1,113 @@
+diff --git a/contrib/test_disk-server/server_toolkit/bindings.cpp b/contrib/test_disk-server/server_toolkit/bindings.cpp
+index 90137878f1..df9979a2bb 100644
+--- a/contrib/test_disk-server/server_toolkit/bindings.cpp
++++ b/contrib/test_disk-server/server_toolkit/bindings.cpp
+@@ -32,7 +32,9 @@ PYBIND11_MODULE(server_toolkit_py, m) {
+             .def_readwrite("read_latency_ms", &ChangeParametersPayload::read_latency_ms)
+             .def_readwrite("write_latency_ms", &ChangeParametersPayload::write_latency_ms)
+             .def_readwrite("is_singleshot", &ChangeParametersPayload::is_singleshot)
+-            .def_readwrite("error_code", &ChangeParametersPayload::error_code);
++            .def_readwrite("error_code", &ChangeParametersPayload::error_code)
++            .def_readwrite("only_specified_sector", &ChangeParametersPayload::only_specified_sector)
++            .def_readwrite("specified_sector", &ChangeParametersPayload::specified_sector);
+ 
+     py::class_<ServerRequest>(m, "ServerRequest")
+             .def(py::init<>())
+@@ -49,5 +51,5 @@ PYBIND11_MODULE(server_toolkit_py, m) {
+     // Functions
+     m.def("create_server", &create_server, "ip"_a, "port"_a);
+     m.def("run_server", &run_server, "server_fd"_a, "callback"_a, py::call_guard<py::gil_scoped_release>());
+-    m.def("change_server_parameters", &change_server_parameters, "ip"_a, "port"_a, "read_latency_ms"_a, "write_latency_ms"_a, "error_code"_a, "is_singleshot"_a = false);
++    m.def("change_server_parameters", &change_server_parameters, "ip"_a, "port"_a, "read_latency_ms"_a, "write_latency_ms"_a, "error_code"_a, "is_singleshot"_a, "only_specified_sector"_a, "specified_sector"_a);
+ }
+diff --git a/contrib/test_disk-server/server_toolkit/server_toolkit.cpp b/contrib/test_disk-server/server_toolkit/server_toolkit.cpp
+index 8ee18a283c..b0c94b1a86 100644
+--- a/contrib/test_disk-server/server_toolkit/server_toolkit.cpp
++++ b/contrib/test_disk-server/server_toolkit/server_toolkit.cpp
+@@ -104,7 +104,13 @@ void _client_routine(int client_fd, const Callback& callback) {
+             << ", write_latency_ms = " << server_req.change_parameters_payload.write_latency_ms
+             << ", error code = " << std::format("(0x{:02x}|0x{:02x}|0x{:02x})", server_req.change_parameters_payload.error_code.key, server_req.change_parameters_payload.error_code.asc, server_req.change_parameters_payload.error_code.ascq)
+             << ", is singleshot = " << static_cast<int>(server_req.change_parameters_payload.is_singleshot)
+-            << std::endl;
++            << ", only specified sector = " << static_cast<int>(server_req.change_parameters_payload.only_specified_sector);
++
++            if (server_req.change_parameters_payload.only_specified_sector) {
++                std::cout << ", specified sector = " << server_req.change_parameters_payload.specified_sector;
++            }
++
++            std::cout << std::endl;
+         }
+     }
+ 
+@@ -115,7 +121,7 @@ void _client_routine(int client_fd, const Callback& callback) {
+ 
+ // ============================================================================
+ 
+-int change_server_parameters(const std::string& ip, uint16_t port, uint32_t read_latency_ms, uint32_t write_latency_ms, ErrorCode error_code, bool is_singleshot) {
++int change_server_parameters(const std::string& ip, uint16_t port, uint32_t read_latency_ms, uint32_t write_latency_ms, ErrorCode error_code, bool is_singleshot, bool only_specified_sector, uint64_t specified_sector) {
+     // server address
+     sockaddr_in addr = {
+         .sin_family = AF_INET,
+@@ -148,7 +154,9 @@ int change_server_parameters(const std::string& ip, uint16_t port, uint32_t read
+             .read_latency_ms = read_latency_ms,
+             .write_latency_ms = write_latency_ms,
+             .is_singleshot = is_singleshot,
+-            .error_code = error_code
++            .error_code = error_code,
++            .only_specified_sector = only_specified_sector,
++            .specified_sector = specified_sector
+         }
+     };
+ 
+@@ -159,7 +167,13 @@ int change_server_parameters(const std::string& ip, uint16_t port, uint32_t read
+         << ", write_latency_ms = " << write_latency_ms
+         << ", error code = " << std::format("(0x{:02x}|0x{:02x}|0x{:02x})", error_code.key, error_code.asc, error_code.ascq)
+         << ", is singleshot = " << static_cast<int>(is_singleshot)
+-        << std::endl;
++        << ", only specified sector = " << static_cast<int>(only_specified_sector);
++
++        if (only_specified_sector) {
++            std::cout << ", specified sector = " << specified_sector;
++        }
++
++        std::cout << std::endl;
+     }
+ 
+     close(fd);
+diff --git a/contrib/test_disk-server/server_toolkit/server_toolkit.h b/contrib/test_disk-server/server_toolkit/server_toolkit.h
+index d177998c38..ba39093789 100644
+--- a/contrib/test_disk-server/server_toolkit/server_toolkit.h
++++ b/contrib/test_disk-server/server_toolkit/server_toolkit.h
+@@ -15,6 +15,6 @@ int run_server(int server_fd, const Callback& callback);
+ 
+ void _client_routine(int client_fd, const Callback& callback);
+ 
+-int change_server_parameters(const std::string& ip, uint16_t port, uint32_t read_latency_ms, uint32_t write_latency_ms, ErrorCode error_code, bool is_singleshot = false);
++int change_server_parameters(const std::string& ip, uint16_t port, uint32_t read_latency_ms, uint32_t write_latency_ms, ErrorCode error_code, bool is_singleshot, bool only_specified_sector, uint64_t specified_sector);
+ 
+ #endif //SERVER_H
+diff --git a/contrib/test_disk-server/structs.h b/contrib/test_disk-server/structs.h
+index 4283505673..1eb40fcc3b 100644
+--- a/contrib/test_disk-server/structs.h
++++ b/contrib/test_disk-server/structs.h
+@@ -13,7 +13,7 @@ typedef struct ErrorCode {
+ typedef struct TestDiskPayload {
+     uint8_t disk_id;
+     uint8_t command;
+-    uint32_t sector;
++    uint64_t sector;
+     uint64_t req_target_len;
+ } TestDiskPayload;
+ 
+@@ -22,8 +22,10 @@ typedef struct ChangeParametersPayload {
+     uint32_t write_latency_ms;
+ 
+     bool is_singleshot;
+-
+     ErrorCode error_code;
++
++    bool only_specified_sector;
++    uint64_t specified_sector;
+ } ChangeParametersPayload;
+ 
+ typedef struct ServerRequest {
