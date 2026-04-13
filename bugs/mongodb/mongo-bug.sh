@@ -2,7 +2,7 @@
 
 #=====
 
-MONGO_V="4.2"
+MONGO_V="4.0"
 
 #=====
 
@@ -35,6 +35,8 @@ WRITE_LOG="/tmp/mongo_write.log"
 > "$WRITE_LOG"
 
 #=====
+
+sudo fsck -t ext4 -MT ${DISK} > /dev/null || sudo mkfs.ext4 ${DISK}
 
 sudo mkdir -p ${MOUNT_PATH}
 sudo mkdir -p ${MONGO_PATH}
