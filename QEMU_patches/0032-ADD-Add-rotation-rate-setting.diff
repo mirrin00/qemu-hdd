@@ -1,0 +1,80 @@
+diff --git a/hw/scsi/test_disk.c b/hw/scsi/test_disk.c
+index 9b1a48a493..f3c48eba7e 100644
+--- a/hw/scsi/test_disk.c
++++ b/hw/scsi/test_disk.c
+@@ -18,6 +18,7 @@
+ static Property test_disk_properties[] = {
+     DEFINE_BLOCK_PROPERTIES(TestDisk, parent_scsi_dev.conf),
+     DEFINE_PROP_UINT8("disk-id", TestDisk, id, 0),
++    DEFINE_PROP_UINT16("rotation-rate", TestDisk, rotation_rate, 0),
+     DEFINE_PROP_BOOL("latency-stop-vm", TestDisk, stop_vm, true)
+ };
+ 
+@@ -96,6 +97,53 @@ static int32_t test_disk_send_command(SCSIRequest* scsi_req, uint8_t* request_bu
+ 
+     // INQUIRY request is handled even without socket
+     if (command == 0x12) { // INQUIRY
++
++        uint8_t evpd = request_buf[1] & 0x01;
++
++        if (evpd) {
++            uint8_t page_code = request_buf[2];
++
++            switch (page_code) {
++                case 0x00:
++                    memset(disk_req->response_buf, 0, 6);
++
++                    disk_req->response_buf[0] = 0;
++                    disk_req->response_buf[1] = 0;
++                    disk_req->response_buf[2] = 0;
++                    disk_req->response_buf[3] = 2; // number of supported pages
++
++                    // supported pages
++                    disk_req->response_buf[4] = 0x00;
++                    disk_req->response_buf[5] = 0xb1;
++
++                    scsi_req_data(scsi_req, 6);
++                    break;
++
++                case 0xb1:
++                    memset(disk_req->response_buf, 0, 64);
++
++                    disk_req->response_buf[0] = 0x00;
++                    disk_req->response_buf[1] = 0xb1;
++                    disk_req->response_buf[2] = 0x00;
++                    disk_req->response_buf[3] = 0x3c;
++
++                    disk_req->response_buf[4] = (disk->rotation_rate >> 8) & 0xff;
++                    disk_req->response_buf[5] = disk->rotation_rate & 0xff;
++
++                    scsi_req_data(scsi_req, 64);
++                    break;
++
++                default:
++                    printf("[DISK]: rejecting VDA page 0x%02x\n", page_code);
++
++                    scsi_req_build_sense(scsi_req, SENSE_CODE(INVALID_FIELD));
++                    scsi_req_complete(scsi_req, CHECK_CONDITION);
++                    break;
++            }
++
++            return 0;
++        }
++
+         memset(disk_req->response_buf, 0, 36);
+ 
+         disk_req->response_buf[0] = 0; // Direct-access block device
+diff --git a/hw/scsi/test_disk.h b/hw/scsi/test_disk.h
+index c55d30ca92..30da886cbf 100644
+--- a/hw/scsi/test_disk.h
++++ b/hw/scsi/test_disk.h
+@@ -20,6 +20,8 @@ struct TestDisk {
+     guint socket_watcher_tag;
+ 
+     bool stop_vm;
++
++    uint16_t rotation_rate;
+ };
+ 
+ #endif //HW_SCSI_TEST_DISK_H
+\ No newline at end of file
